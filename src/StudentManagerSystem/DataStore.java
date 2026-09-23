@@ -78,6 +78,7 @@ public class DataStore {
     }
 
     private static void loadStudents() {
+        StudentManager.getStudentList().clear();
         File file= new File(STUDENT_FILE);
         if (!file.exists()) return ;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
@@ -97,6 +98,7 @@ public class DataStore {
     }
 
     private static void loadSubjects() {
+        SubjectManager.getSubjectList().clear();
         File file= new File(SUBJECT_FILE);
         if (!file.exists()) return ;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
@@ -114,6 +116,7 @@ public class DataStore {
     }
 
     private static void loadScores() {
+        ScoreManager.getScoreMap().clear();
         File file = new File(SCORE_FILE);
         if (!file.exists()) return;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
