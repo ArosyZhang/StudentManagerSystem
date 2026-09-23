@@ -9,22 +9,7 @@ public class StudentManager {
     private static final String ID_PREFIX = "STU";
     private static final int ID_DIGITS = 3;
 
-    static ArrayList<StudentManager> studentList = new ArrayList<>();
-
-    String stuId;
-    String stuName;
-    int age;
-
-    public StudentManager(String id, String name, int age){
-        this.stuId = id;
-        this.stuName = name;
-        this.age = age;
-    }
-
-    @Override
-    public String toString(){
-        return "学号: " + stuId + " 姓名: " + stuName + " 年龄: " + age;    
-    }
+    static ArrayList<Student> studentList = new ArrayList<>();
 
     public static void studentManager(Scanner scanner){
 
@@ -69,7 +54,7 @@ public class StudentManager {
         int age = ToolUtil.readInt(scanner, "输入学生年龄: ", 12, 40);
 
         String stuId = setStudentId(studentList);
-        studentList.add(new StudentManager(stuId, stuName, age));
+        studentList.add(new Student(stuId, stuName, age));
         DataStore.saveAll();//更新数据
         System.out.println("------------------------"); 
         System.out.println("成功添加 " + stuName + " 同学 年龄：" + age);
@@ -79,7 +64,7 @@ public class StudentManager {
     //删除学生，包括同名删除，确认删除，支持通过姓名，学号，选择序号删除
     public static void deleteStudent(Scanner scanner) {
         System.out.println("请选择要删除学生的序号、姓名或学号之一: ");
-        StudentManager student = StudentManager.chooseStudent(scanner);
+        Student student = chooseStudent(scanner);
         if (student == null) {
             System.out.println("已取消删除");
             return;
@@ -102,13 +87,13 @@ public class StudentManager {
     }
 
     //自动生成学生ID
-    public static String setStudentId(ArrayList<StudentManager> studentList){
+    public static String setStudentId(ArrayList<Student> studentList){
 
         if (studentList.isEmpty()){
             return ID_PREFIX + "001";
         }
         int maxNum = 0;
-        for (StudentManager stu : studentList) {
+        for (Student stu : studentList) {
             String numStr = stu.getStuId().substring(ID_PREFIX.length());
             int num = Integer.parseInt(numStr);
             if(num > maxNum){
@@ -138,6 +123,7 @@ public class StudentManager {
             String.valueOf(s.getStuAge())
         });    
     }
+    
     //判断输入是否为学生学号
     public static boolean isStudentId(String enterStr){
 
@@ -151,20 +137,8 @@ public class StudentManager {
 
     }
 
-    public String getStuId() { 
-        return stuId; 
-    }
-
-    public String getStuName() {
-        return stuName;
-    }
-
-    public int getStuAge() {
-        return age;
-    }
-
     //返回学生列表
-    public static ArrayList<StudentManager> getStudentList() {
+    public static ArrayList<Student> getStudentList() {
 
         return studentList;
 
@@ -172,14 +146,14 @@ public class StudentManager {
 
     //静态方法，通过id找name
     public static String getStuName(String studentId) {
-        StudentManager stu = findStudentById(studentId);
+        Student stu = findStudentById(studentId);
         return (stu != null) ? stu.getStuName() : "未知学生";
     }
 
     //检查学生是否存在 返回学生对象，包括姓名
 
-    public static StudentManager findStudentById(String studentId ){
-        for (StudentManager s : studentList) {
+    public static Student findStudentById(String studentId ){
+        for (Student s : studentList) {
             if (s.getStuId().equalsIgnoreCase(studentId)) {
                 return s;
             }
@@ -193,8 +167,8 @@ public class StudentManager {
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
 
-    public static StudentManager chooseStudent(Scanner scanner) {
-        ArrayList<StudentManager> students = getStudentList();
+    public static Student chooseStudent(Scanner scanner) {
+        ArrayList<Student> students = getStudentList();
         if (students.isEmpty()) {
             System.out.println("暂无学生，请先在学生管理中添加");
             return null;
@@ -226,12 +200,12 @@ public class StudentManager {
             }
         } catch (NumberFormatException e) {
             // 不是数字，先当学号查
-            StudentManager stu = findStudentById(input);
+            Student stu = findStudentById(input);
 
             if (stu == null) {
                 //学号没找到，再尝试按姓名查
-                List<StudentManager> matched = new ArrayList<>();
-                for (StudentManager s : studentList) {
+                List<Student> matched = new ArrayList<>();
+                for (Student s : studentList) {
                     if (s.getStuName().equalsIgnoreCase(input)) {
                         matched.add(s);
                     }
@@ -242,7 +216,7 @@ public class StudentManager {
                 }
                 if (matched.size() >1) {
                     System.out.println("存在多个同名学生，请改用学号选择：");
-                    for (StudentManager s : matched) {
+                    for (Student s : matched) {
                         System.out.println("  " + s.getStuId() + " - " + s.getStuName());
                     }
                         return null;

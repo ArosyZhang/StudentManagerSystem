@@ -34,7 +34,7 @@ public class DataStore {
 
     private static void saveStudents() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(STUDENT_FILE),"UTF-8"))){
-            for (StudentManager s : StudentManager.getStudentList()) {
+            for (Student s : StudentManager.getStudentList()) {
                 bw.write(s.getStuId() + "|" + s.getStuName() + "|" + s.getStuAge());
                 bw.newLine();
             }            
@@ -88,7 +88,7 @@ public class DataStore {
                 }
                 String[] parts = line.split("\\|");
                 if (parts.length >= 3) {
-                    StudentManager.getStudentList().add(new StudentManager(ToolUtil.normalizeId(parts[0]), parts[1], Integer.parseInt(parts[2])));
+                    StudentManager.getStudentList().add(new Student(ToolUtil.normalizeId(parts[0]), parts[1], Integer.parseInt(parts[2])));
                 }
             }   
         } catch (IOException e) {

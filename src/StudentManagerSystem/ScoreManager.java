@@ -65,7 +65,7 @@ public class ScoreManager {
 
         //循环选择学生录入成绩
         while (true) {
-            StudentManager student = StudentManager.chooseStudent(scanner);
+            Student student = StudentManager.chooseStudent(scanner);
             if (student == null) {
                 System.out.println("结束录入，返回上级菜单");
                 break;
@@ -83,7 +83,7 @@ public class ScoreManager {
     private static void enterByStudent(Scanner scanner) {
         
         //1.选择学生
-        StudentManager student = StudentManager.chooseStudent(scanner);
+        Student student = StudentManager.chooseStudent(scanner);
         if (student == null) {
             return;
         }
@@ -171,7 +171,7 @@ public class ScoreManager {
     private static void queryStudentScores(Scanner scanner) {
 
         //选择学生
-        StudentManager student = StudentManager.chooseStudent(scanner);
+        Student student = StudentManager.chooseStudent(scanner);
         if (student == null) {
             System.out.println("已取消查询");
             return;
@@ -294,7 +294,7 @@ public class ScoreManager {
     public static void showAllScoresTable() {
         //1.获取所有科目
         ArrayList<SubjectManager> subjects = SubjectManager.getSubjectList();
-        ArrayList<StudentManager> students = StudentManager.getStudentList();
+        ArrayList<Student> students = StudentManager.getStudentList();
 
         if (students.isEmpty()) {
             System.out.println("暂无学生数据");
@@ -326,7 +326,7 @@ public class ScoreManager {
 
         List<StudentRow> rows = new ArrayList<>();
 
-        for (StudentManager stu : students) {
+        for (Student stu : students) {
             StudentRow row = new StudentRow();
             row.studentId = stu.getStuId();
             row.name = stu.getStuName();
@@ -389,7 +389,7 @@ public class ScoreManager {
         Random random = new Random();
 
         // 获取学生和科目列表
-        ArrayList<StudentManager> students = StudentManager.getStudentList();
+        ArrayList<Student> students = StudentManager.getStudentList();
         ArrayList<SubjectManager> subjects = SubjectManager.getSubjectList();
 
         if (students.isEmpty() || subjects.isEmpty()) {
@@ -397,7 +397,7 @@ public class ScoreManager {
             System.out.println("学生或科目为空，无法初始化成绩。");
             return;
         }
-        for (StudentManager stu : students) {
+        for (Student stu : students) {
 
             // 为每个学生创建一个内层 Map
             Map<String, Double> stuScores = new HashMap<>();

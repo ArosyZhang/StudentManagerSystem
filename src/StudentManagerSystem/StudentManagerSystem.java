@@ -55,11 +55,11 @@ public class StudentManagerSystem {
     //初始化学生（测试）
     public static void intDefaultStudent(){
         if (StudentManager.studentList.isEmpty()) {
-            StudentManager.studentList.add(new StudentManager("STU001", "Arosy", 23));
-            StudentManager.studentList.add(new StudentManager("STU002", "Jack", 18));
-            StudentManager.studentList.add(new StudentManager("STU003", "Rose", 26));
-            StudentManager.studentList.add(new StudentManager("STU004", "Davi", 19));
-            StudentManager.studentList.add(new StudentManager("STU005", "Liu", 21));
+            StudentManager.studentList.add(new Student("STU001", "Arosy", 23));
+            StudentManager.studentList.add(new Student("STU002", "Jack", 18));
+            StudentManager.studentList.add(new Student("STU003", "Rose", 26));
+            StudentManager.studentList.add(new Student("STU004", "Davi", 19));
+            StudentManager.studentList.add(new Student("STU005", "Liu", 21));
         }
     }    
 }
