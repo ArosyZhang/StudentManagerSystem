@@ -133,7 +133,7 @@ public class ScoreManager {
             }         
         }
 
-        //将subjectId和Score放入内层Map（如果已存在相同的科目边号，会覆盖就分数）
+        //"科目编号"、"覆盖旧分数"
         studentScores.put(normSubjectId,score);
         DataStore.saveAll();//更新数据
 
@@ -264,18 +264,6 @@ public class ScoreManager {
             String name = ToolUtil.truncate(StudentManager.getStuName(studentId), 12);
             System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);    
         }
-
-        //缺考处理
-        // 
-        /* 
-        System.out.println("\n缺考名单");
-        for (StudentManager stu : students) {
-            Map<String,Double> studentScores = scoreMap.get(stu.getStuId());
-            if (studentScores == null || !studentScores.containsKey(subjectId)) {
-                System.out.println(" " + stu.getStuName());
-            }
-        }
-        */
     }
 
     //--- 数据清理（删除学生/科目时调用） ---

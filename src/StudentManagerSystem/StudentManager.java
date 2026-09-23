@@ -104,8 +104,8 @@ public class StudentManager {
             return ID_PREFIX + "001";
         }
         int maxNum = 0;
-        for (StudentManager SUB : studentList) {
-            String numStr = SUB.getStuId().substring(ID_PREFIX.length());
+        for (StudentManager stu : studentList) {
+            String numStr = stu.getStuId().substring(ID_PREFIX.length());
             int num = Integer.parseInt(numStr);
             if(num > maxNum){
                 maxNum = num;

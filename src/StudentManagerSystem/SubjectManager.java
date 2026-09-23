@@ -97,8 +97,8 @@ public class SubjectManager {
             return ID_PREFIX + "001";
         }
         int maxNum = 0;
-        for (SubjectManager SUB : subjectList) {
-            String numStr = SUB.getSubId().substring(ID_PREFIX.length());
+        for (SubjectManager sub : subjectList) {
+            String numStr = sub.getSubId().substring(ID_PREFIX.length());
             int num = Integer.parseInt(numStr);
             if(num > maxNum){
                 maxNum = num;
@@ -195,7 +195,7 @@ public class SubjectManager {
             return null;
         }
 
-        //拼表头：序号 + 学号 + 姓名
+        //拼表头：序号 + 科目编号 + 科目名称
         StringBuilder header = new StringBuilder();
         header.append(ToolUtil.padRight("序号", 6));
         header.append(ToolUtil.padRight("科目编号", 12));
