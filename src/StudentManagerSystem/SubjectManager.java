@@ -109,7 +109,7 @@ public class SubjectManager {
             }
         }
         int newNum = maxNum + 1;
-        if (newNum > Math.pow(10, ID_DIGITS) - 1) {
+        if (newNum > (int) Math.pow(10, ID_DIGITS) - 1) {
             throw new IllegalStateException("科目ID已达到最大值,无法生成新的ID");
         }
         return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
@@ -124,27 +124,13 @@ public class SubjectManager {
             return ;
 
         }
-        //拼表头
-        StringBuilder header = new StringBuilder();
-        header.append(ToolUtil.padRight("科目编号", 10));
-        header.append(ToolUtil.padRight("科目名称", 10));
-
-        String headerStr = header.toString();
-
-        //打印横幅 + 表头 + 分隔线
-        System.out.println();
-        ToolUtil.printBanner("科目列表", headerStr);
-        ToolUtil.printDivider('-', headerStr);
-        System.out.println(headerStr);
-        ToolUtil.printDivider('-', headerStr);
-
-        //逐行输出
-        for (SubjectManager s : subjectList) {
-            StringBuilder line = new StringBuilder();
-            line.append(ToolUtil.padRight(s.getSubId(), 10));
-            line.append(ToolUtil.padRight(ToolUtil.truncate(s.getSubName(), 10), 10));
-            System.out.println(line);
-        }
+        
+        String[] headers = {"科目编号", "科目名称"};
+        int[] widths = {10, 14};
+        ToolUtil.printTable("科目列表", headers, widths, subjectList, (s, i) -> new String[]{
+            s.getSubId(),
+            s.getSubName()
+        });
     }
 
     //判断输入是否为科目ID
@@ -155,7 +141,7 @@ public class SubjectManager {
 
         return 
         upper.startsWith(ID_PREFIX)
-        && enterStr.length() == ID_PREFIX.length() + ID_DIGITS
+        && upper.length() == ID_PREFIX.length() + ID_DIGITS
         && upper.substring(ID_PREFIX.length()).matches("\\d+"); 
     }
 
@@ -202,31 +188,17 @@ public class SubjectManager {
             return null;
         }
 
-        //拼表头：序号 + 科目编号 + 科目名称
-        StringBuilder header = new StringBuilder();
-        header.append(ToolUtil.padRight("序号", 6));
-        header.append(ToolUtil.padRight("科目编号", 12));
-        header.append(ToolUtil.padRight("科目名称", 16));
+        String[] headers = {"序号", "科目编号", "科目名称"};
+        int[] widths = {6, 10, 14};
 
-        String headerStr = header.toString();
-
-        System.out.println();
-        ToolUtil.printBanner("请选择科目", headerStr);
-        System.out.println(headerStr);
-        ToolUtil.printDivider('-', headerStr);
-
-        //打印行
-        for (int i = 0; i < subjects.size(); i++) {
-            SubjectManager sub = subjects.get(i);
-            StringBuilder line = new StringBuilder();
-            line.append(ToolUtil.padRight(String.valueOf(i + 1), 6));
-            line.append(ToolUtil.padRight(sub.getSubId(), 12));
-            line.append(ToolUtil.padRight(ToolUtil.truncate(sub.getSubName(), 16), 16));
-            System.out.println(line);
-        }
+        ToolUtil.printTable("请选择科目", headers, widths, subjects, (s, i) -> new String[]{
+            String.valueOf(i + 1),
+            s.getSubId(),
+            s.getSubName()
+        });
 
         System.out.println("0.返回");
-        System.out.print("请输入序号或者学号：");
+        System.out.print("请输入序号或者科目编号：");
 
         String input = scanner.nextLine().trim();
         if (input.equals("0")) {

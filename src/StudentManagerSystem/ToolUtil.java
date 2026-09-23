@@ -1,5 +1,5 @@
 package StudentManagerSystem;
-
+import java.util.List;
 import java.util.Scanner;
 
 public class ToolUtil {
@@ -131,5 +131,57 @@ public class ToolUtil {
         return id == null ? "" : id.trim().toUpperCase();
     }
 
+    //===========通用表格渲染===========
 
+    /**
+     * 行映射器接口，用于将对象映射为表格行
+     * @param <T> 数据行的类型（studentManager、SubjectManager等）
+     */
+    @FunctionalInterface 
+    public interface RowMapperWithIndex<T> {
+        String[] map(T item, int index);
+    }
+
+    /**
+     * 渲染一张等宽表格：表头、分隔线、数据行公用一份列宽定义
+     * 
+     * @param title     表格标题
+     * @param headers   列名    
+     * @param widths    每列的显示宽度,中文按2算，长度必须与headers一致
+     * @param list      数据行
+     * @param mapper    如何从一行数据取出每列的文本
+     */
+    public static <T> void printTable(String title, String[] headers, int[] widths, List<T> list, RowMapperWithIndex<T> mapper) {
+
+        //1.接口自保：预防非法输入
+        if (list ==  null || list.isEmpty()) return;
+        if (headers.length != widths.length) {
+            throw new IllegalArgumentException("表头列数与列宽数不一致:headers=" + headers.length + ", widths=" + widths.length);
+        }
+
+        //2.拼表头：按widths 逐列填充
+        StringBuilder headerSb = new StringBuilder();
+        for (int i = 0; i < headers.length; i++) {
+            headerSb.append(padRight(headers[i], widths[i]));
+        }
+        String headerStr = headerSb.toString();
+
+        //3.横幅+表头+分隔线
+        System.out.println();
+        printBanner(title, headerStr);  
+        System.out.println(headerStr);
+        printDivider('-', headerStr);
+
+        //4.打印行
+        for (int i = 0; i < list.size(); i++) {
+            String[] cells = mapper.map(list.get(i), i);
+            StringBuilder line = new StringBuilder();
+            for (int j = 0; j < cells.length; j++) {
+                line.append(padRight(cells[j], widths[j]));
+            }
+            System.out.println(line);
+        }
+    }
+
+    
 }

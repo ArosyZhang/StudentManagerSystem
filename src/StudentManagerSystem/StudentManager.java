@@ -116,7 +116,7 @@ public class StudentManager {
             }
         }
         int newNum = maxNum + 1;
-        if (newNum > Math.pow(10, ID_DIGITS) - 1) {
+        if (newNum > (int) Math.pow(10, ID_DIGITS) - 1) {
             throw new IllegalStateException("学生ID已达到最大值,无法生成新的ID");
         }
         return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
@@ -128,30 +128,16 @@ public class StudentManager {
             System.out.println("学生列表为空"); 
             return;        
         }
-        //拼表头
-        StringBuilder header = new StringBuilder();
-        header.append(ToolUtil.padRight("学号", 10));
-        header.append(ToolUtil.padRight("姓名", 12));
-        header.append(ToolUtil.padRight("年龄", 6));
 
-        String headerStr = header.toString();
+        String[] headers = {"学号", "姓名", "年龄"};
+        int[] widths = {10, 14, 6};
 
-        //打印横幅 + 表头 + 分隔线
-        System.out.println();
-        ToolUtil.printBanner("学生列表", headerStr);
-        System.out.println(headerStr);
-        ToolUtil.printDivider('-', headerStr);
-
-        //逐行输出
-        for (StudentManager s : studentList) {
-            StringBuilder line = new StringBuilder();
-            line.append(ToolUtil.padRight(s.getStuId(), 10));
-            line.append(ToolUtil.padRight(ToolUtil.truncate(s.getStuName(), 12), 14));
-            line.append(ToolUtil.padRight(String.valueOf(s.getStuAge()), 6));
-            System.out.println(line);
-        }  
+        ToolUtil.printTable("学生列表", headers, widths, studentList, (s, i) -> new String[]{
+            s.getStuId(),
+            s.getStuName(), 
+            String.valueOf(s.getStuAge())
+        });    
     }
-
     //判断输入是否为学生学号
     public static boolean isStudentId(String enterStr){
 
@@ -160,7 +146,7 @@ public class StudentManager {
 
         return
         upper.startsWith(ID_PREFIX)
-        && enterStr.length() == ID_PREFIX.length() + ID_DIGITS
+        && upper.length() == ID_PREFIX.length() + ID_DIGITS
         && upper.substring(ID_PREFIX.length()).matches("\\d+");
 
     }
@@ -213,29 +199,15 @@ public class StudentManager {
             System.out.println("暂无学生，请先在学生管理中添加");
             return null;
         }
+        String[] headers = {"序号", "学号", "姓名"};
+        int[] widths = {6, 10, 14};
 
-        //拼表头：序号 + 学号 + 姓名
-        StringBuilder header = new StringBuilder();
-        header.append(ToolUtil.padRight("序号", 6));
-        header.append(ToolUtil.padRight("学号", 10));
-        header.append(ToolUtil.padRight("姓名", 12));
-
-        String headerStr = header.toString();
-
-        System.out.println();
-        ToolUtil.printBanner("请选择学生", headerStr);
-        System.out.println(headerStr);
-        ToolUtil.printDivider('-', headerStr);
-
-        //打印行
-        for (int i = 0; i < students.size(); i++) {
-            StudentManager stu = students.get(i);
-            StringBuilder line = new StringBuilder();
-            line.append(ToolUtil.padRight(String.valueOf(i + 1), 6));
-            line.append(ToolUtil.padRight(stu.getStuId(), 10));
-            line.append(ToolUtil.padRight(ToolUtil.truncate(stu.getStuName(), 12), 12));
-            System.out.println(line);
-        }
+        ToolUtil.printTable("请选择学生", headers, widths, students, (s, i) -> new String[]{
+            String.valueOf(i + 1),
+            s.getStuId(),
+            s.getStuName()
+        });
+        
         System.out.println("0.返回");
         System.out.print("请输入序号或者学号：");
 
