@@ -7,7 +7,7 @@ public class StudentManager {
 
     //常量，消除魔法值
     private static final String ID_PREFIX = "STU";
-    private static final int ID_FIX_LENGTH = 6;
+    private static final int ID_DIGITS = 3;
 
     static ArrayList<StudentManager> studentList = new ArrayList<>();
 
@@ -154,7 +154,7 @@ public class StudentManager {
 
         return
         upper.startsWith(ID_PREFIX)
-        && enterStr.length() == ID_FIX_LENGTH
+        && enterStr.length() == ID_PREFIX.length() + ID_DIGITS
         && upper.substring(ID_PREFIX.length()).matches("\\d+");
 
     }

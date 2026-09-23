@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class ToolUtil {
     //计算字符串的显示宽度（中文算2，英文算1）
-    public static int dispalyWidth(String s) {
+    public static int displayWidth(String s) {
         if (s == null) return 0;
         int w = 0;
         for (char c : s.toCharArray()) {
@@ -31,7 +31,7 @@ public class ToolUtil {
     public static String padRight(String s, int width) {
         if (s == null) s = " ";
         StringBuilder sb = new StringBuilder(s);
-        int w = dispalyWidth(s);
+        int w = displayWidth(s);
         while (w < width) {
             sb.append(' ');
             w++;
@@ -41,16 +41,16 @@ public class ToolUtil {
 
     //打印标题横幅，宽度与给定参考字符串一致，两侧则用=填充
     public static void printBanner(String title, String reference) {
-        int totalWidth = dispalyWidth(reference);
+        int totalWidth = displayWidth(reference);
         String t = " " + title + " ";
-        int side = Math.max((totalWidth - dispalyWidth(t)) / 2, 0);
-        int rightSide = Math.max(totalWidth - dispalyWidth(t) - side, 0);
+        int side = Math.max((totalWidth - displayWidth(t)) / 2, 0);
+        int rightSide = Math.max(totalWidth - displayWidth(t) - side, 0);
         System.out.println("=".repeat(side) + t + "=".repeat(rightSide));
     }
 
     //打印指定宽度的分隔线
     public static void printDivider(char ch, String reference) {
-        System.out.println(String.valueOf(ch).repeat(dispalyWidth(reference)));
+        System.out.println(String.valueOf(ch).repeat(displayWidth(reference)));
     }
 
     /**
@@ -59,7 +59,7 @@ public class ToolUtil {
      */
     public static String truncate(String s, int maxWidth) {
         if (s == null) return " ";
-        if (dispalyWidth(s) <= maxWidth) return s;
+        if (displayWidth(s) <= maxWidth) return s;
         
         StringBuilder sb = new StringBuilder();
         int w = 0;
