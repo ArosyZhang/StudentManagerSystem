@@ -28,7 +28,6 @@ public class ScoreManager {
         public String getSubjectId(){ return subjectId;}
         public double getValue(){ return value;}
         public void setValue(double value){ this.value = value;}
-        public static Map<String, Map<String,Double>> getScoreMap() { return scoreMap; }
 
         @Override
         public String toString(){
@@ -131,11 +130,11 @@ public class ScoreManager {
     public static boolean addOrUpdateScore(Scanner scanner, String studentId, String subjectId,double score) {
 
         //获取该学生的成绩Map，不存在则创建
-        Map<String,Double> studentScores = scoreMap.get(studentId);
+        Map<String,Double> studentScores = scoreMap.get(normalizeId(studentId));
         if (studentScores == null) {
             //  该学生从未录入过成绩，新建一个内层 Map
             studentScores = new HashMap<>();
-            scoreMap.put(studentId.toUpperCase(),studentScores);
+            scoreMap.put(normalizeId(studentId),studentScores);
         }
         //判断是否已有该科目的成绩
         if (studentScores.containsKey(subjectId)) {
@@ -198,7 +197,7 @@ public class ScoreManager {
         String studentId = student.getStuId();
 
         //从scoreMap中获取该学生成绩Map并判断是否有成绩记录
-        Map<String, Double> studentScores = scoreMap.get(studentId);
+        Map<String, Double> studentScores = scoreMap.get(normalizeId(studentId));
         if (studentScores == null || studentScores.isEmpty()) {
             System.out.println("学生 " + student.getStuName() + " 暂无任何科目成绩");
             return;
@@ -301,12 +300,12 @@ public class ScoreManager {
     //--- 数据清理（删除学生/科目时调用） ---
     //删除某个学生的所有成绩
     public static void removeScoreByStudent(String studentId) {   
-        scoreMap.remove(studentId);    
+        scoreMap.remove(normalizeId(studentId));    
     }
     //删除某个科目的所有成绩（遍历所有学生，移除该科目）
     public static void removeScoreBySubject(String subjectId) { 
         for (Map<String,Double> scores : scoreMap.values()) {
-            scores.remove(subjectId);
+            scores.remove(normalizeId(subjectId));
         }   
     }
 
@@ -463,9 +462,24 @@ public class ScoreManager {
         System.out.println("随机成绩初始化完成。");
     }
 
-    public static Map<String, Map<String,Double>> getScoreMap() {
-        return scoreMap;
+     public static void clearScores() {
+        scoreMap.clear();
     }
+
+    public static void loadScores(String studentId, String subjectId, double score) {
+        if (studentId.isEmpty() || subjectId.isEmpty()) return; 
+        scoreMap.computeIfAbsent(normalizeId(studentId), k -> new HashMap<>()).put(normalizeId(subjectId), score);
+    }
+
+    public static Map<String, Map<String, Double>> snapshotScores() {
+        return Map.copyOf(scoreMap); //浅拷贝，外层不可变，内层仍可变
+        
+    }
+     //归一化处理方法
+    private static String normalizeId(String id) {
+        return id == null ? "" : id.trim().toUpperCase();
+    }
+        
 }
 
 

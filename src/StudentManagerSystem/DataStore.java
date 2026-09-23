@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 public class DataStore {
@@ -57,7 +56,7 @@ public class DataStore {
 
     private static void saveScores() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SCORE_FILE),"UTF-8"))){
-            for (Map.Entry<String, Map<String, Double>> outer : ScoreManager.getScoreMap().entrySet()) {
+            for (Map.Entry<String, Map<String, Double>> outer : ScoreManager.snapshotScores().entrySet()) {
                 String studentId = outer.getKey();
                 for (Map.Entry<String, Double> inner : outer.getValue().entrySet()) {
                     bw.write(studentId + "|" + inner.getKey() + "|" + inner.getValue());
@@ -116,7 +115,7 @@ public class DataStore {
     }
 
     private static void loadScores() {
-        ScoreManager.getScoreMap().clear();
+        ScoreManager.clearScores();
         File file = new File(SCORE_FILE);
         if (!file.exists()) return;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
@@ -128,7 +127,7 @@ public class DataStore {
                     String studentId = parts[0];
                     String subjectId = parts[1];
                     double score = Double.parseDouble(parts[2]);
-                    ScoreManager.getScoreMap().computeIfAbsent(studentId, k -> new HashMap<>()).put(subjectId, score);
+                    ScoreManager.loadScores(studentId, subjectId, score);
                 }
             }
         
