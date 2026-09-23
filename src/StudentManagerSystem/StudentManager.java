@@ -112,7 +112,7 @@ public class StudentManager {
             }
         }
         int newNum = maxNum + 1;
-        return ID_PREFIX + String.format("%03d", newNum);
+        return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
 
     }   
 
