@@ -8,13 +8,10 @@ public class StudentManager {
     //常量，消除魔法值
     private static final String ID_PREFIX = "STU";
     private static final int ID_DIGITS = 3;
-    private static final String ID_NUM = "001";
-
 
     static ArrayList<Student> studentList = new ArrayList<>();
 
     public static void studentManager(Scanner scanner){
-
         while (true) {
             System.out.println("\n===== 学生管理菜单 =====");
             System.out.println("1. 添加学生");
@@ -90,10 +87,6 @@ public class StudentManager {
 
     //自动生成学生ID
     public static String setStudentId(ArrayList<Student> studentList){
-
-        if (studentList.isEmpty()){
-            return ID_PREFIX + ID_NUM;
-        }
         int maxNum = 0;
         for (Student stu : studentList) {
             String numStr = stu.getStuId().substring(ID_PREFIX.length());

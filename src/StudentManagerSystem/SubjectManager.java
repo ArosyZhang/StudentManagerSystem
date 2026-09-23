@@ -7,7 +7,6 @@ public class SubjectManager {
     //常量，消除魔法值
     private static final String ID_PREFIX = "SUB";
     private static final int ID_DIGITS = 3;
-    private static final String ID_NUM = "001";
 
     static ArrayList<Subject> subjectList = new ArrayList<>();
 
@@ -84,10 +83,6 @@ public class SubjectManager {
 
     //自动生成科目id
     public static String setSubjectId(ArrayList<Subject> subjectList){
-
-        if (subjectList.isEmpty()){
-            return ID_PREFIX + ID_NUM;
-        }
         int maxNum = 0;
         for (Subject sub : subjectList) {
             String numStr = sub.getSubId().substring(ID_PREFIX.length());

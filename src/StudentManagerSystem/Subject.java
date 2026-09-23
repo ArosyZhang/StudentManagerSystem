@@ -4,7 +4,7 @@ public class Subject {
     private final String subId;
     private final String subName;
 
-    public Subject(String subId , String subName){
+    public Subject(String subId, String subName){
         this.subId = subId;
         this.subName = subName;
     }
