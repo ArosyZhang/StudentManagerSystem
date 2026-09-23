@@ -7,22 +7,10 @@ public class SubjectManager {
     //常量，消除魔法值
     private static final String ID_PREFIX = "SUB";
     private static final int ID_DIGITS = 3;
+    private static final String ID_NUM = "001";
 
-    static ArrayList<SubjectManager> subjectList = new ArrayList<>();
+    static ArrayList<Subject> subjectList = new ArrayList<>();
 
-    String subId;
-    String subName;
-
-    @Override
-    public String toString(){
-        return "科目编号: " + subId + "科目名称: " + subName;    
-    }
-
-    public SubjectManager(String subId , String subName){
-        this.subId = subId;
-        this.subName = subName;
-    }
-    
     public static void showSubjectMenu(Scanner scanner ) {
 
         while (true) {
@@ -63,7 +51,7 @@ public class SubjectManager {
         }
     
         String subId = setSubjectId(subjectList);
-        subjectList.add(new SubjectManager(subId, subName));
+        subjectList.add(new Subject(subId, subName));
         DataStore.saveAll();//更新数据
         System.out.println("------------------------"); 
         System.out.println("添加《" + subName + "》 成功");
@@ -72,7 +60,7 @@ public class SubjectManager {
     //删除科目，包括同名删除，确认删除，选择序号删除
     public static void deleteSubject(Scanner scanner) {
         System.out.println("请选择要删除科目的序号、名称或编号之一: ");
-        SubjectManager subject = SubjectManager.chooseSubject(scanner);
+        Subject subject = chooseSubject(scanner);
         if (subject == null) {
             System.out.println("已取消删除");
             return;
@@ -95,13 +83,13 @@ public class SubjectManager {
     }
 
     //自动生成科目id
-    public static String setSubjectId(ArrayList<SubjectManager> subjectList){
+    public static String setSubjectId(ArrayList<Subject> subjectList){
 
         if (subjectList.isEmpty()){
-            return ID_PREFIX + "001";
+            return ID_PREFIX + ID_NUM;
         }
         int maxNum = 0;
-        for (SubjectManager sub : subjectList) {
+        for (Subject sub : subjectList) {
             String numStr = sub.getSubId().substring(ID_PREFIX.length());
             int num = Integer.parseInt(numStr);
             if(num > maxNum){
@@ -113,7 +101,6 @@ public class SubjectManager {
             throw new IllegalStateException("科目ID已达到最大值,无法生成新的ID");
         }
         return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
-
     }
 
     //打印全部科目
@@ -145,28 +132,20 @@ public class SubjectManager {
         && upper.substring(ID_PREFIX.length()).matches("\\d+"); 
     }
 
-    public String getSubId() { 
-        return subId; 
-    }
-
-    public String getSubName(){
-        return subName;
-    }
-
     //返回科目列表
-    public static ArrayList<SubjectManager> getSubjectList() {
+    public static ArrayList<Subject> getSubjectList() {
         return subjectList;
     }
 
     //静态方法，通过id找name
     public static String getSubName(String subjectId) {
-        SubjectManager sub = findSubjectById(subjectId);
+        Subject sub = findSubjectById(subjectId);
         return (sub != null) ? sub.getSubName() : "未知科目";
     }
 
     //检查科目是否存在 返回科目对象，包括名称
-    public static SubjectManager findSubjectById(String subjectId ){
-        for (SubjectManager s : subjectList) {
+    public static Subject findSubjectById(String subjectId ){
+        for (Subject s : subjectList) {
             if (s.getSubId().equalsIgnoreCase(subjectId)) {
                 return s;
             }
@@ -181,8 +160,8 @@ public class SubjectManager {
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
 
-    public static SubjectManager chooseSubject(Scanner scanner) {
-        ArrayList<SubjectManager> subjects = getSubjectList();
+    public static Subject chooseSubject(Scanner scanner) {
+        ArrayList<Subject> subjects = getSubjectList();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目，请先在科目管理中添加");
             return null;
@@ -216,7 +195,7 @@ public class SubjectManager {
             }
         } catch (NumberFormatException e) {
             // 不是数字，当作编号处理
-            SubjectManager sub = findSubjectById(input);
+            Subject sub = findSubjectById(input);
             if (sub == null) {
                 System.out.println("未找到编号为 " + input + " 的科目");
             }

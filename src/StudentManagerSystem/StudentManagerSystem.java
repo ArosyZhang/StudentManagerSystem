@@ -46,9 +46,9 @@ public class StudentManagerSystem {
     public static void intDefaultSubject(){
         //只在列表为空时添加
         if (SubjectManager.subjectList.isEmpty()) {
-            SubjectManager.subjectList.add(new SubjectManager("SUB001", "Java"));
-            SubjectManager.subjectList.add(new SubjectManager("SUB002", "C++"));
-            SubjectManager.subjectList.add(new SubjectManager("SUB003", "English"));
+            SubjectManager.subjectList.add(new Subject("SUB001", "Java"));
+            SubjectManager.subjectList.add(new Subject("SUB002", "C++"));
+            SubjectManager.subjectList.add(new Subject("SUB003", "English"));
             
         }
     }

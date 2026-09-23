@@ -45,7 +45,7 @@ public class DataStore {
 
     private static void saveSubjects() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SUBJECT_FILE),"UTF-8"))){
-            for (SubjectManager s : SubjectManager.getSubjectList()) {
+            for (Subject s : SubjectManager.getSubjectList()) {
                 bw.write(s.getSubId() + "|" + s.getSubName());
                 bw.newLine();
             }            
@@ -106,7 +106,7 @@ public class DataStore {
                 if (line.trim().isEmpty()) continue;                    
                 String[] parts = line.split("\\|");
                 if (parts.length >= 2) {
-                    SubjectManager.getSubjectList().add(new SubjectManager(ToolUtil.normalizeId(parts[0]), parts[1]));
+                    SubjectManager.getSubjectList().add(new Subject(ToolUtil.normalizeId(parts[0]), parts[1]));
                 }
             }   
         } catch (IOException e) {

@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
-
 public class ScoreManager {
 
     private static Map<String, Map<String,Double>> scoreMap = new HashMap<>();
@@ -57,7 +56,7 @@ public class ScoreManager {
     private static void enterBySubject(Scanner scanner) {
         
         //1.显示所有科目，让用户选择科目
-        SubjectManager subject = SubjectManager.chooseSubject(scanner);
+        Subject subject = SubjectManager.chooseSubject(scanner);
         if (subject == null) {
             return;
         }
@@ -91,7 +90,7 @@ public class ScoreManager {
 
         //循环选择学生录入成绩
         while (true) {
-            SubjectManager subject = SubjectManager.chooseSubject(scanner);
+            Subject subject = SubjectManager.chooseSubject(scanner);
             if (subject == null) {
                 System.out.println("结束录入，返回上级菜单");
                 break;
@@ -184,7 +183,7 @@ public class ScoreManager {
             System.out.println("学生 " + student.getStuName() + " 暂无任何科目成绩");
             return;
         }
-        ArrayList<SubjectManager> subjects = SubjectManager.getSubjectList();
+        ArrayList<Subject> subjects = SubjectManager.getSubjectList();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目数据");
             return ;
@@ -195,7 +194,7 @@ public class ScoreManager {
         double total = 0;
         int validCount = 0;
 
-        for (SubjectManager sub : subjects) {
+        for (Subject sub : subjects) {
             String subId = sub.getSubId();
             String subName = sub.getSubName();
 
@@ -220,7 +219,7 @@ public class ScoreManager {
     //单科目成绩排名：输入科目编号或科目名，输出该科目所有学生的成绩降序排列
     private static void subjectRanking(Scanner scanner) {
         //选择科目
-        SubjectManager subject = SubjectManager.chooseSubject(scanner);
+        Subject subject = SubjectManager.chooseSubject(scanner);
         if (subject == null) {
             System.out.println("已取消查询");
             return;  
@@ -293,7 +292,7 @@ public class ScoreManager {
     }
     public static void showAllScoresTable() {
         //1.获取所有科目
-        ArrayList<SubjectManager> subjects = SubjectManager.getSubjectList();
+        ArrayList<Subject> subjects = SubjectManager.getSubjectList();
         ArrayList<Student> students = StudentManager.getStudentList();
 
         if (students.isEmpty()) {
@@ -390,7 +389,7 @@ public class ScoreManager {
 
         // 获取学生和科目列表
         ArrayList<Student> students = StudentManager.getStudentList();
-        ArrayList<SubjectManager> subjects = SubjectManager.getSubjectList();
+        ArrayList<Subject> subjects = SubjectManager.getSubjectList();
 
         if (students.isEmpty() || subjects.isEmpty()) {
 
@@ -401,7 +400,7 @@ public class ScoreManager {
 
             // 为每个学生创建一个内层 Map
             Map<String, Double> stuScores = new HashMap<>();
-            for (SubjectManager sub : subjects) {
+            for (Subject sub : subjects) {
                 // 随机分数 40~100 的整数
                 double score = 40 + random.nextInt(61);  // nextInt(61) 返回 0~60
                 stuScores.put(sub.getSubId(), score);
