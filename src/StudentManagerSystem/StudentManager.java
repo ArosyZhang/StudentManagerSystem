@@ -51,8 +51,12 @@ public class StudentManager {
     public static void addStudent(Scanner scanner) {
         System.out.println("------------------------");
         System.out.println("输入学生姓名: ");
-        String stuName = scanner.nextLine();
-
+        String stuName = scanner.nextLine().trim();
+        //空名检测
+        if (stuName.isEmpty()) {
+            System.out.println("学生姓名不能为空，已取消添加");
+            return;
+        }
         //重复名校验
         boolean exist = studentList.stream().anyMatch(s -> s.getStuName().equalsIgnoreCase(stuName));
 
@@ -112,8 +116,10 @@ public class StudentManager {
             }
         }
         int newNum = maxNum + 1;
+        if (newNum > Math.pow(10, ID_DIGITS) - 1) {
+            throw new IllegalStateException("学生ID已达到最大值,无法生成新的ID");
+        }
         return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
-
     }   
 
     //打印全部学生

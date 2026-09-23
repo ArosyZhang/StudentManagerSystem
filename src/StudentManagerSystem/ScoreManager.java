@@ -11,6 +11,8 @@ import java.util.Scanner;
 public class ScoreManager {
 
     private static Map<String, Map<String,Double>> scoreMap = new HashMap<>();
+    //分数容差
+    private static final double SCORE_EPSILON = 1e-6;
 
     public static void scoreMenu(Scanner scanner) {
         while (true) {
@@ -69,7 +71,7 @@ public class ScoreManager {
                 break;
             }
 
-            double score = inputScore(scanner);
+            double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", 0, 100);
             boolean saved = addOrUpdateScore(scanner,student.getStuId(), subject.getSubId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
@@ -95,7 +97,7 @@ public class ScoreManager {
                 break;
             }
 
-            double score = inputScore(scanner);
+            double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", 0, 100);
             boolean saved = addOrUpdateScore(scanner,student.getStuId(), subject.getSubId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
@@ -153,7 +155,7 @@ public class ScoreManager {
             System.out.println("2. 单科目成绩排名");
             System.out.println("0. 返回上级菜单");
             System.out.println("-------------------");
-            int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 3);
+            int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 2);
             switch (choiceNumber){
                 case 1 -> queryStudentScores(scanner);
                 case 2 -> subjectRanking(scanner);
@@ -255,8 +257,8 @@ public class ScoreManager {
             String studentId = entry.getKey();
             double score = entry.getValue();
             count++;
-
-            if (score != lastScore) {
+            double diff = Math.abs(score - lastScore);
+            if (diff > SCORE_EPSILON) { //使用容差判断是否相等
                 rank = count;
                 lastScore = score;
             }
@@ -365,7 +367,8 @@ public class ScoreManager {
 
         for (StudentRow row : rows) {
             count++;
-            if (row.total != lastTotal) {
+            double diff = Math.abs(row.total - lastTotal);
+            if (diff > SCORE_EPSILON) {
                 rank = count;
                 lastTotal = row.total;
             }
@@ -382,27 +385,6 @@ public class ScoreManager {
             System.out.println(line);
         }
     }
-
-    //分数录入 提取方法 (带校验)
-    public static double inputScore(Scanner scanner) {
-        while (true) {
-            System.out.print("请输入分数(0-100): ");
-            if (scanner.hasNextDouble()) {
-                double score = scanner.nextDouble();
-                scanner.nextLine();
-                if (score >= 0 && score <=100) {
-                    return score;                   
-                } else {
-                    System.out.println("分数必须在0到100之间, 请重新输入");
-                }
-                
-            }else {
-                System.out.println("输入无效，请输入正确的数字");
-                scanner.nextLine();//清除输入错误
-            }
-        }
-    }
-
 
     //初始化成绩（测试）
     public static void initRandomScores() {

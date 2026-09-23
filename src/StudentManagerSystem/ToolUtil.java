@@ -103,8 +103,33 @@ public class ToolUtil {
             }
         }
     }
+    public static double readDouble(Scanner scanner, String prompt, double min ,double max) {
+        double result;
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();//读取一行去掉首尾空格
+
+            try {
+                result = Double.parseDouble(input);
+                if (!Double.isFinite(result)) {
+                    System.out.println("输入无效，请输入一个有限的数字");
+                    continue;
+                }
+                if (result < min || result > max) {
+                    System.out.println("输入超出范围，请输入 " + min + "~" + max + "之间的数字");
+                    continue;
+                }
+                return result;  
+            } catch (NumberFormatException e) {
+                System.out.println("输入无效，请输入一个数字");
+            }
+        }
+    }
+
     //归一化处理方法
     public static String normalizeId(String id) {
         return id == null ? "" : id.trim().toUpperCase();
     }
+
+
 }
