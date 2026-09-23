@@ -128,20 +128,23 @@ public class ScoreManager {
 
     //添加和更新成绩（已存在则覆盖）
     public static boolean addOrUpdateScore(Scanner scanner, String studentId, String subjectId,double score) {
+        //入口归一化处理
+        String normStudentId = ToolUtil.normalizeId(studentId);
+        String normSubjectId = ToolUtil.normalizeId(subjectId);
 
         //获取该学生的成绩Map，不存在则创建
-        Map<String,Double> studentScores = scoreMap.get(normalizeId(studentId));
+        Map<String,Double> studentScores = scoreMap.get(normStudentId);
         if (studentScores == null) {
             //  该学生从未录入过成绩，新建一个内层 Map
             studentScores = new HashMap<>();
-            scoreMap.put(normalizeId(studentId),studentScores);
+            scoreMap.put(normStudentId,studentScores);
         }
         //判断是否已有该科目的成绩
-        if (studentScores.containsKey(subjectId)) {
-            double oldScore = studentScores.get(subjectId);
-            
-            String stuName = StudentManager.getStuName(studentId);
-            String subName = SubjectManager.getSubName(subjectId);
+        if (studentScores.containsKey(normSubjectId)) {
+            double oldScore = studentScores.get(normSubjectId);
+
+            String stuName = StudentManager.getStuName(normStudentId);
+            String subName = SubjectManager.getSubName(normSubjectId);
 
             System.out.printf("该学生已有成绩：%s 的 %s 为 %.1f 分。 %n", stuName, subName, oldScore);
             System.out.print("是否覆盖旧成绩(Y/N): ");
@@ -154,12 +157,12 @@ public class ScoreManager {
         }
 
         //将subjectId和Score放入内层Map（如果已存在相同的科目边号，会覆盖就分数）
-        studentScores.put(subjectId.toUpperCase(),score);
+        studentScores.put(normSubjectId,score);
         DataStore.saveAll();//更新数据
 
         //提示添加成功
-        String stuName = StudentManager.getStuName(studentId);
-        String subName = SubjectManager.getSubName(subjectId);
+        String stuName = StudentManager.getStuName(normStudentId);
+        String subName = SubjectManager.getSubName(normSubjectId);
         System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数: " + score);
         return true;
     }
@@ -197,7 +200,7 @@ public class ScoreManager {
         String studentId = student.getStuId();
 
         //从scoreMap中获取该学生成绩Map并判断是否有成绩记录
-        Map<String, Double> studentScores = scoreMap.get(normalizeId(studentId));
+        Map<String, Double> studentScores = scoreMap.get(studentId);
         if (studentScores == null || studentScores.isEmpty()) {
             System.out.println("学生 " + student.getStuName() + " 暂无任何科目成绩");
             return;
@@ -247,11 +250,12 @@ public class ScoreManager {
         //收集该科目所有成绩
         List<Map.Entry<String, Double>> ranking = new ArrayList<>();
 
+        String normSubjectId = ToolUtil.normalizeId(subjectId);
         for (Map.Entry<String , Map<String, Double>> outer : scoreMap.entrySet()) {
             String studentId = outer.getKey();
             Map<String, Double> studentScores = outer.getValue();
-            if (studentScores.containsKey(subjectId)) {
-                ranking.add(new AbstractMap.SimpleEntry<>(studentId, studentScores.get(subjectId)));
+            if (studentScores.containsKey(normSubjectId)) {
+                ranking.add(new AbstractMap.SimpleEntry<>(studentId, studentScores.get(normSubjectId)));
             }
         }
 
@@ -300,12 +304,13 @@ public class ScoreManager {
     //--- 数据清理（删除学生/科目时调用） ---
     //删除某个学生的所有成绩
     public static void removeScoreByStudent(String studentId) {   
-        scoreMap.remove(normalizeId(studentId));    
+        scoreMap.remove(ToolUtil.normalizeId(studentId));    
     }
     //删除某个科目的所有成绩（遍历所有学生，移除该科目）
     public static void removeScoreBySubject(String subjectId) { 
+        String normalizedSubjectId = ToolUtil.normalizeId(subjectId);
         for (Map<String,Double> scores : scoreMap.values()) {
-            scores.remove(normalizeId(subjectId));
+            scores.remove(normalizedSubjectId);
         }   
     }
 
@@ -467,19 +472,16 @@ public class ScoreManager {
     }
 
     public static void loadScores(String studentId, String subjectId, double score) {
+        studentId = ToolUtil.normalizeId(studentId);
+        subjectId = ToolUtil.normalizeId(subjectId);
         if (studentId.isEmpty() || subjectId.isEmpty()) return; 
-        scoreMap.computeIfAbsent(normalizeId(studentId), k -> new HashMap<>()).put(normalizeId(subjectId), score);
+        scoreMap.computeIfAbsent(studentId, k -> new HashMap<>()).put(subjectId, score);
     }
 
     public static Map<String, Map<String, Double>> snapshotScores() {
         return Map.copyOf(scoreMap); //浅拷贝，外层不可变，内层仍可变
         
-    }
-     //归一化处理方法
-    private static String normalizeId(String id) {
-        return id == null ? "" : id.trim().toUpperCase();
-    }
-        
+    }      
 }
 
 

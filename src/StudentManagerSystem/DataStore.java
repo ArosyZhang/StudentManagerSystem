@@ -88,7 +88,7 @@ public class DataStore {
                 }
                 String[] parts = line.split("\\|");
                 if (parts.length >= 3) {
-                    StudentManager.getStudentList().add(new StudentManager(parts[0], parts[1], Integer.parseInt(parts[2])));
+                    StudentManager.getStudentList().add(new StudentManager(ToolUtil.normalizeId(parts[0]), parts[1], Integer.parseInt(parts[2])));
                 }
             }   
         } catch (IOException e) {
@@ -106,7 +106,7 @@ public class DataStore {
                 if (line.trim().isEmpty()) continue;                    
                 String[] parts = line.split("\\|");
                 if (parts.length >= 2) {
-                    SubjectManager.getSubjectList().add(new SubjectManager(parts[0], parts[1]));
+                    SubjectManager.getSubjectList().add(new SubjectManager(ToolUtil.normalizeId(parts[0]), parts[1]));
                 }
             }   
         } catch (IOException e) {

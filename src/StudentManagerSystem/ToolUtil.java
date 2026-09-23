@@ -103,6 +103,10 @@ public class ToolUtil {
             }
         }
     }
+    //归一化处理方法
+    public static String normalizeId(String id) {
+        return id == null ? "" : id.trim().toUpperCase();
+    }
 
 
     //统一退出逻辑优化
