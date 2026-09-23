@@ -4,15 +4,7 @@ import java.util.Scanner;
 public class StudentManagerSystem {
 
     static Scanner scanner = new Scanner(System.in);
-    public static void main(String[] args) {
-
-        //测试：预置科目
-        //intDefaultSubject();
-        //测试：预置学生
-        //intDefaultStudent();
-        //测试：预置成绩
-        //ScoreManager.initRandomScores();
-        
+    public static void main(String[] args) { 
         //启动 加载文件数据
         DataStore.loadAll();
 
@@ -40,27 +32,6 @@ public class StudentManagerSystem {
                 }    
             }
         }  
-    }
-
-    // 初始化科目（测试）
-    public static void intDefaultSubject(){
-        //只在列表为空时添加
-        if (SubjectManager.subjectList.isEmpty()) {
-            SubjectManager.subjectList.add(new Subject("SUB001", "Java"));
-            SubjectManager.subjectList.add(new Subject("SUB002", "C++"));
-            SubjectManager.subjectList.add(new Subject("SUB003", "English"));
-            
-        }
-    }
-    //初始化学生（测试）
-    public static void intDefaultStudent(){
-        if (StudentManager.studentList.isEmpty()) {
-            StudentManager.studentList.add(new Student("STU001", "Arosy", 23));
-            StudentManager.studentList.add(new Student("STU002", "Jack", 18));
-            StudentManager.studentList.add(new Student("STU003", "Rose", 26));
-            StudentManager.studentList.add(new Student("STU004", "Davi", 19));
-            StudentManager.studentList.add(new Student("STU005", "Liu", 21));
-        }
-    }    
+    }   
 }
 

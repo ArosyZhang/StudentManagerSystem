@@ -183,7 +183,7 @@ public class ScoreManager {
             System.out.println("学生 " + student.getStuName() + " 暂无任何科目成绩");
             return;
         }
-        ArrayList<Subject> subjects = SubjectManager.getSubjectList();
+        List<Subject> subjects = SubjectManager.snapshotSubjects();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目数据");
             return ;
@@ -280,7 +280,6 @@ public class ScoreManager {
         }   
     }
 
-    //显示所有学生与成绩表格
     //临时数据类
     static class StudentRow {
         String studentId;
@@ -292,8 +291,8 @@ public class ScoreManager {
     }
     public static void showAllScoresTable() {
         //1.获取所有科目
-        ArrayList<Subject> subjects = SubjectManager.getSubjectList();
-        ArrayList<Student> students = StudentManager.getStudentList();
+        List<Subject> subjects = SubjectManager.snapshotSubjects();
+        List<Student> students = StudentManager.snapshotStudents();
 
         if (students.isEmpty()) {
             System.out.println("暂无学生数据");
@@ -388,8 +387,8 @@ public class ScoreManager {
         Random random = new Random();
 
         // 获取学生和科目列表
-        ArrayList<Student> students = StudentManager.getStudentList();
-        ArrayList<Subject> subjects = SubjectManager.getSubjectList();
+        List<Student> students = StudentManager.snapshotStudents();
+        List<Subject> subjects = SubjectManager.snapshotSubjects();
 
         if (students.isEmpty() || subjects.isEmpty()) {
 
@@ -410,21 +409,23 @@ public class ScoreManager {
         System.out.println("随机成绩初始化完成。");
     }
 
-    public static void clearScores() {
-        scoreMap.clear();
-    }
-
+    //从文件加载一条
     public static void loadScores(String studentId, String subjectId, double score) {
         studentId = ToolUtil.normalizeId(studentId);
         subjectId = ToolUtil.normalizeId(subjectId);
         if (studentId.isEmpty() || subjectId.isEmpty()) return; 
         scoreMap.computeIfAbsent(studentId, k -> new HashMap<>()).put(subjectId, score);
     }
-
+    //只读快照
     public static Map<String, Map<String, Double>> snapshotScores() {
         return Map.copyOf(scoreMap); //浅拷贝，外层不可变，内层仍可变
         
-    }      
+    }
+    //清空
+    public static void clearScores() {
+        scoreMap.clear();
+    }
+     
 }
 
 

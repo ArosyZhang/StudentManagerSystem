@@ -1,5 +1,6 @@
 package StudentManagerSystem;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class SubjectManager {
@@ -8,7 +9,7 @@ public class SubjectManager {
     private static final String ID_PREFIX = "SUB";
     private static final int ID_DIGITS = 3;
 
-    static ArrayList<Subject> subjectList = new ArrayList<>();
+    private static final ArrayList<Subject> subjectList = new ArrayList<>();
 
     public static void showSubjectMenu(Scanner scanner ) {
 
@@ -127,11 +128,6 @@ public class SubjectManager {
         && upper.substring(ID_PREFIX.length()).matches("\\d+"); 
     }
 
-    //返回科目列表
-    public static ArrayList<Subject> getSubjectList() {
-        return subjectList;
-    }
-
     //静态方法，通过id找name
     public static String getSubName(String subjectId) {
         Subject sub = findSubjectById(subjectId);
@@ -154,9 +150,8 @@ public class SubjectManager {
      * 输入0表示放弃选择
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
-
     public static Subject chooseSubject(Scanner scanner) {
-        ArrayList<Subject> subjects = getSubjectList();
+        List<Subject> subjects = snapshotSubjects();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目，请先在科目管理中添加");
             return null;
@@ -197,5 +192,18 @@ public class SubjectManager {
             return sub;
         }
     }
-  
+    //从文件加载一条科目数据
+    public static void loadSubject(String subId, String subName) {
+        subId = ToolUtil.normalizeId(subId);
+        if (subId.isEmpty()) return;
+        subjectList.add(new Subject(subId, subName));
+    }
+    //只读快照
+    public static List<Subject> snapshotSubjects() {
+        return List.copyOf(subjectList); 
+    }
+    //清空
+    public static void clearSubjects() {
+        subjectList.clear();
+    } 
 }

@@ -34,7 +34,7 @@ public class DataStore {
 
     private static void saveStudents() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(STUDENT_FILE),"UTF-8"))){
-            for (Student s : StudentManager.getStudentList()) {
+            for (Student s : StudentManager.snapshotStudents()) {
                 bw.write(s.getStuId() + "|" + s.getStuName() + "|" + s.getStuAge());
                 bw.newLine();
             }            
@@ -45,7 +45,7 @@ public class DataStore {
 
     private static void saveSubjects() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SUBJECT_FILE),"UTF-8"))){
-            for (Subject s : SubjectManager.getSubjectList()) {
+            for (Subject s : SubjectManager.snapshotSubjects()) {
                 bw.write(s.getSubId() + "|" + s.getSubName());
                 bw.newLine();
             }            
@@ -77,7 +77,7 @@ public class DataStore {
     }
 
     private static void loadStudents() {
-        StudentManager.getStudentList().clear();
+        StudentManager.clearStudents();
         File file= new File(STUDENT_FILE);
         if (!file.exists()) return ;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
@@ -88,7 +88,7 @@ public class DataStore {
                 }
                 String[] parts = line.split("\\|");
                 if (parts.length >= 3) {
-                    StudentManager.getStudentList().add(new Student(ToolUtil.normalizeId(parts[0]), parts[1], Integer.parseInt(parts[2])));
+                    StudentManager.loadStudent(parts[0], parts[1], Integer.parseInt(parts[2]));
                 }
             }   
         } catch (IOException e) {
@@ -97,7 +97,7 @@ public class DataStore {
     }
 
     private static void loadSubjects() {
-        SubjectManager.getSubjectList().clear();
+        SubjectManager.clearSubjects();
         File file= new File(SUBJECT_FILE);
         if (!file.exists()) return ;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
@@ -106,7 +106,7 @@ public class DataStore {
                 if (line.trim().isEmpty()) continue;                    
                 String[] parts = line.split("\\|");
                 if (parts.length >= 2) {
-                    SubjectManager.getSubjectList().add(new Subject(ToolUtil.normalizeId(parts[0]), parts[1]));
+                    SubjectManager.loadSubject(parts[0], parts[1]);
                 }
             }   
         } catch (IOException e) {
@@ -130,7 +130,6 @@ public class DataStore {
                     ScoreManager.loadScores(studentId, subjectId, score);
                 }
             }
-        
         } catch (IOException e) {
             System.out.println("读取成绩数据失败：" + e.getMessage());
         }

@@ -9,7 +9,7 @@ public class StudentManager {
     private static final String ID_PREFIX = "STU";
     private static final int ID_DIGITS = 3;
 
-    static ArrayList<Student> studentList = new ArrayList<>();
+    private static final ArrayList<Student> studentList = new ArrayList<>();
 
     public static void studentManager(Scanner scanner){
         while (true) {
@@ -132,13 +132,6 @@ public class StudentManager {
 
     }
 
-    //返回学生列表
-    public static ArrayList<Student> getStudentList() {
-
-        return studentList;
-
-    }
-
     //静态方法，通过id找name
     public static String getStuName(String studentId) {
         Student stu = findStudentById(studentId);
@@ -146,7 +139,6 @@ public class StudentManager {
     }
 
     //检查学生是否存在 返回学生对象，包括姓名
-
     public static Student findStudentById(String studentId ){
         for (Student s : studentList) {
             if (s.getStuId().equalsIgnoreCase(studentId)) {
@@ -161,9 +153,8 @@ public class StudentManager {
      * 输入0表示放弃选择
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
-
     public static Student chooseStudent(Scanner scanner) {
-        ArrayList<Student> students = getStudentList();
+        List<Student> students = snapshotStudents();
         if (students.isEmpty()) {
             System.out.println("暂无学生，请先在学生管理中添加");
             return null;
@@ -219,7 +210,20 @@ public class StudentManager {
                 stu = matched.get(0);
             }
             return stu;
-        } 
-        
-    }       
+        }      
+    }
+    //从文件加载一条学生数据
+    public static void loadStudent(String stuId, String stuName, int stuAge) {
+        stuId = ToolUtil.normalizeId(stuId);
+        if (stuId.isEmpty()) return;
+        studentList.add(new Student(stuId, stuName, stuAge));
+    }
+    //只读快照
+    public static List<Student> snapshotStudents() {
+        return List.copyOf(studentList); 
+    }
+    //清空
+    public static void clearStudents() {
+        studentList.clear();
+    }
 }
