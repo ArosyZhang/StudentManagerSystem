@@ -288,7 +288,8 @@ public class ScoreManager {
         String name;
         double[] scores; //按科目顺序存放分数，没有用 -1 表示
         double total;
-        double average;   
+        double average; 
+        int rank; //名次  
     }
     public static void showAllScoresTable() {
         //1.获取所有科目
@@ -299,15 +300,30 @@ public class ScoreManager {
             System.out.println("暂无学生数据");
             return;
         }
-
         if (subjects.isEmpty()) {
             System.out.println("暂无科目数据");
             return;
         }
 
         int subCount = subjects.size();
+        int totalCols = 3 + subCount + 2; //名次+学号+姓名+科目...+总分+平均分
 
-        //2.为每个学生构建数据行
+        String[] headers = new String[totalCols];
+        int[] widths = new int[totalCols];
+
+        //左边固定的三列
+        headers[0] = "名次"; widths[0] = 6;
+        headers[1] = "学号"; widths[1] = 10;
+        headers[2] = "姓名"; widths[2] = 14;
+        //科目列 动态
+        for (int i = 0; i < subCount; i++) {
+            headers[3 + i] = subjects.get(i).getSubName();
+            widths[3 + i] = 12;
+        }
+        //最后两列 总分 平均分
+        headers[3 + subCount] = "总分"; widths[3 + subCount] = 10;
+        headers[4 + subCount] = "平均分"; widths[4 + subCount] = 10;
+
         List<StudentRow> rows = new ArrayList<>();
 
         for (StudentManager stu : students) {
@@ -337,53 +353,34 @@ public class ScoreManager {
             rows.add(row);
         }
 
-        //3.按总分降序排列
+        //按总分降序排列
         rows.sort((a, b) -> Double.compare(b.total, a.total));
 
-        //4.表头：名次+学号+姓名+科目...+总分+平均分
-        StringBuilder header = new StringBuilder();
-        header.append(ToolUtil.padRight("名次", 6));
-        header.append(ToolUtil.padRight("学号", 10));
-        header.append(ToolUtil.padRight("姓名", 14));
-        
-        for (SubjectManager sub : subjects) {
-            header.append(ToolUtil.padRight(sub.getSubName(), 12));
-        }
-        header.append(ToolUtil.padRight("总分", 10));
-        header.append(ToolUtil.padRight("平均分", 10));
-
-        String headerStr = header.toString();
-
-        //打印横幅 + 表头 + 分隔线
-        System.out.println();
-        ToolUtil.printBanner("全体学生成绩表", headerStr);
-        System.out.println(headerStr);
-        ToolUtil.printDivider('-', headerStr);        
-
-        //5.打印每一行，处理并列名次
-        int rank = 0;
-        int count = 0;
-        double lastTotal = -1;
-
-        for (StudentRow row : rows) {
-            count++;
-            double diff = Math.abs(row.total - lastTotal);
-            if (diff > SCORE_EPSILON) {
-                rank = count;
-                lastTotal = row.total;
+        for (int i = 0; i < rows.size(); i++) {
+            StudentRow row = rows.get(i);
+            if (i == 0 || Math.abs(row.total - rows.get(i - 1).total) > SCORE_EPSILON) {
+                row.rank = i + 1;
+            } else {
+                row.rank = rows.get( i - 1).rank;
             }
-
-            StringBuilder line = new StringBuilder();
-            line.append(ToolUtil.padRight(String.valueOf(rank), 6));
-            line.append(ToolUtil.padRight(row.studentId, 10));
-            line.append(ToolUtil.padRight(ToolUtil.truncate(row.name, 12), 14));
-            for (double s : row.scores) {     
-                line.append(ToolUtil.padRight(s < 0 ? "-" : String.format("%.1f", s), 12));       
-            }
-            line.append(ToolUtil.padRight(String.format("%.1f", row.total), 10));
-            line.append(ToolUtil.padRight(String.format("%.2f", row.average), 10));
-            System.out.println(line);
         }
+
+        ToolUtil.printTable("全体学生成绩表", headers, widths, rows, (row, idx) -> {
+   
+            String[] cells = new String[totalCols];
+             
+            cells[0] = String.valueOf(row.rank);
+            cells[1] = row.studentId;
+            cells[2] = row.name;
+
+            for (int i = 0; i < subCount; i++) {
+                cells[3 + i] = (row.scores[i] < 0) ? "-" : String.format("%.1f", row.scores[i]);
+            }
+            cells[3 + subCount] = String.format("%.1f", row.total);
+            cells[4 + subCount] = String.format("%.2f", row.average);
+
+            return cells;
+        }); 
     }
 
     //初始化成绩（测试）
@@ -414,7 +411,7 @@ public class ScoreManager {
         System.out.println("随机成绩初始化完成。");
     }
 
-     public static void clearScores() {
+    public static void clearScores() {
         scoreMap.clear();
     }
 

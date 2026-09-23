@@ -65,7 +65,7 @@ public class ToolUtil {
         int w = 0;
         for (char c : s.toCharArray()) {
             int cw = isFullWidth(c) ? 2 : 1;
-            if (w + cw > maxWidth - 2) break;
+            if (w + cw > maxWidth - 3) break;
             sb.append(c);
             w += cw;            
         }
@@ -177,7 +177,7 @@ public class ToolUtil {
             String[] cells = mapper.map(list.get(i), i);
             StringBuilder line = new StringBuilder();
             for (int j = 0; j < cells.length; j++) {
-                line.append(padRight(cells[j], widths[j]));
+                line.append(padRight(truncate(cells[j], widths[j]), widths[j]));
             }
             System.out.println(line);
         }
