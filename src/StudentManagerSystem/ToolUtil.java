@@ -107,23 +107,4 @@ public class ToolUtil {
     public static String normalizeId(String id) {
         return id == null ? "" : id.trim().toUpperCase();
     }
-
-
-    //统一退出逻辑优化
-    /*
-    boolean running = true;
-    while (running) {
-        int choice = ToolUtil.readInt(scanner, "请选择：", 1, 5);
-
-        switch (choice) {
-            case 1 -> 
-            case 5 -> {
-            System.out.println("再见！");
-            running = false;   // 结束循环
-            }
-        }
-    }
-    // 循环外统一清理
-    scanner.close();
-    */
 }

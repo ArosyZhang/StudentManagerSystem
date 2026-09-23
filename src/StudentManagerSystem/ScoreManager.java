@@ -12,29 +12,6 @@ public class ScoreManager {
 
     private static Map<String, Map<String,Double>> scoreMap = new HashMap<>();
 
-    class Score {
-        private String studentId;
-        private String subjectId;
-        private double value;
-
-        public Score(String studentId, String subjectId, double value){
-            this.studentId = studentId;
-            this.subjectId = subjectId;
-            this.value = value;
-        }
-        
-        //Getter 和 Setter
-        public String getStudentId(){ return studentId;}
-        public String getSubjectId(){ return subjectId;}
-        public double getValue(){ return value;}
-        public void setValue(double value){ this.value = value;}
-
-        @Override
-        public String toString(){
-        return "学号： " + studentId + " 科目： " + subjectId + " 分数： " + value;
-        }
-    }
-
     public static void scoreMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n===== 成绩管理菜单 =====");
@@ -354,7 +331,7 @@ public class ScoreManager {
             int validCount = 0;
 
             for (int i = 0; i < subCount; i++) {
-                String subId = subjects.get(i).getSubId().toUpperCase();
+                String subId = subjects.get(i).getSubId();
                 if (stuScores != null && stuScores.containsKey(subId)) {
                     double s = stuScores.get(subId);
                     row.scores[i] = s;
