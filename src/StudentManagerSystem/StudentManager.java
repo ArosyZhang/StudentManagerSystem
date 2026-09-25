@@ -35,7 +35,7 @@ public class StudentManager {
     public static void addStudent(Scanner scanner) {
         System.out.println("------------------------");
         System.out.println("输入学生姓名: ");
-        String stuName = scanner.nextLine().trim();
+        String stuName = ToolUtil.readLine(scanner);
         //空名检测
         if (stuName.isEmpty()) {
             System.out.println("学生姓名不能为空，已取消添加");
@@ -72,7 +72,7 @@ public class StudentManager {
         System.out.println("已选择学生：" + student.getStuName());
 
         System.out.print("确认删除该学生以及其所有成绩?(Y/N): ");
-        String confirm = scanner.nextLine().trim();
+        String confirm = ToolUtil.readLine(scanner);
         if (!confirm.equalsIgnoreCase("Y")) {
             System.out.println("已取消删除");
             return;
@@ -171,7 +171,7 @@ public class StudentManager {
         System.out.println("0.返回");
         System.out.print("请输入序号或者学号：");
 
-        String input = scanner.nextLine().trim();
+        String input = ToolUtil.readLine(scanner);
         if (input.equals("0")) {
             return null;
         }
@@ -213,10 +213,11 @@ public class StudentManager {
         }      
     }
     //从文件加载一条学生数据
-    public static void loadStudent(String stuId, String stuName, int stuAge) {
+    public static boolean loadStudent(String stuId, String stuName, int stuAge) {
         stuId = ToolUtil.normalizeId(stuId);
-        if (stuId.isEmpty()) return;
+        if (stuId.isEmpty()) return false;
         studentList.add(new Student(stuId, stuName, stuAge));
+        return true;
     }
     //只读快照
     public static List<Student> snapshotStudents() {

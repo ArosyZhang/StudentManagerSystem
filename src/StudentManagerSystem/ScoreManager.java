@@ -127,7 +127,7 @@ public class ScoreManager {
             System.out.printf("该学生已有成绩：%s 的 %s 为 %.1f 分。 %n", stuName, subName, oldScore);
             System.out.print("是否覆盖旧成绩(Y/N): ");
 
-            String confirm = scanner.nextLine().trim();
+            String confirm = ToolUtil.readLine(scanner);
             if (!confirm.equalsIgnoreCase("Y")) {
                 System.out.println("已取消，保留原成绩");
                 return false;
@@ -160,10 +160,8 @@ public class ScoreManager {
                 case 2 -> subjectRanking(scanner);
                 case 0 -> { return; }
                 default -> System.out.println("输入有误，请重新输入");
-
             }
-        }
-        
+        }    
     }
 
     //查询某个学生的所有科目成绩
@@ -410,16 +408,18 @@ public class ScoreManager {
     }
 
     //从文件加载一条
-    public static void loadScores(String studentId, String subjectId, double score) {
+    public static String loadScore(String studentId, String subjectId, double score) {
         studentId = ToolUtil.normalizeId(studentId);
         subjectId = ToolUtil.normalizeId(subjectId);
-        if (studentId.isEmpty() || subjectId.isEmpty()) return; 
+        if (studentId.isEmpty()) return "学号为空";
+        if (subjectId.isEmpty()) return "科目编号为空";
         scoreMap.computeIfAbsent(studentId, k -> new HashMap<>()).put(subjectId, score);
+        return null;
     }
+
     //只读快照
     public static Map<String, Map<String, Double>> snapshotScores() {
         return Map.copyOf(scoreMap); //浅拷贝，外层不可变，内层仍可变
-        
     }
     //清空
     public static void clearScores() {

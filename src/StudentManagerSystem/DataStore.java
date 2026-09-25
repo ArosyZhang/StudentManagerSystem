@@ -80,16 +80,32 @@ public class DataStore {
         StudentManager.clearStudents();
         File file= new File(STUDENT_FILE);
         if (!file.exists()) return ;
+        int lineNo = 0;
+        int skipped = 0;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;    
-                }
+                lineNo++;
+                if (line.trim().isEmpty()) continue;    
                 String[] parts = line.split("\\|");
-                if (parts.length >= 3) {
-                    StudentManager.loadStudent(parts[0], parts[1], Integer.parseInt(parts[2]));
+
+                if (parts.length < 3) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
+                    skipped++;
+                    continue;
                 }
+                try {
+                    if (!StudentManager.loadStudent(parts[0].trim(), parts[1].trim(), Integer.parseInt(parts[2].trim()))) {
+                        System.out.println(file.getName() + " 第 " + lineNo + " 行学号为空，已跳过：" + line);
+                        skipped++;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行学生年龄格式错误，已跳过：" + line);
+                    skipped++;
+                }
+            }
+            if (skipped > 0) {
+                System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
             }   
         } catch (IOException e) {
             System.out.println("读取学生数据失败：" + e.getMessage());
@@ -100,14 +116,27 @@ public class DataStore {
         SubjectManager.clearSubjects();
         File file= new File(SUBJECT_FILE);
         if (!file.exists()) return ;
+        int lineNo = 0;
+        int skipped = 0;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
             String line;
             while ((line = br.readLine()) != null) {
+                lineNo++;
                 if (line.trim().isEmpty()) continue;                    
                 String[] parts = line.split("\\|");
-                if (parts.length >= 2) {
-                    SubjectManager.loadSubject(parts[0], parts[1]);
+                
+                if (parts.length < 2) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
+                    skipped++;
+                    continue;
                 }
+                if (!SubjectManager.loadSubject(parts[0].trim(), parts[1].trim())) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行科目编号为空，已跳过：" + line);
+                    skipped++;
+                }
+            }
+            if (skipped > 0) {
+                System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
             }   
         } catch (IOException e) {
             System.out.println("读取科目数据失败：" + e.getMessage());
@@ -118,21 +147,36 @@ public class DataStore {
         ScoreManager.clearScores();
         File file = new File(SCORE_FILE);
         if (!file.exists()) return;
+        int lineNo = 0;
+        int skipped = 0;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
             String line;
             while ((line = br.readLine()) != null) {
+                lineNo++;
                 if (line.trim().isEmpty()) continue; 
                 String[] parts = line.split("\\|");
-                if (parts.length >= 3) {
-                    String studentId = parts[0];
-                    String subjectId = parts[1];
-                    double score = Double.parseDouble(parts[2]);
-                    ScoreManager.loadScores(studentId, subjectId, score);
+
+                if (parts.length < 3) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
+                    skipped++;
+                    continue;
+                }
+                try {
+                    String reason = ScoreManager.loadScore(parts[0].trim(), parts[1].trim(), Double.parseDouble(parts[2].trim()));
+                    if (reason != null) {
+                        System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + ",已跳过：" + line);
+                        skipped++;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行成绩格式错误，已跳过：" + line);
+                    skipped++;
                 }
             }
+            if (skipped > 0) {
+                System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
+            }        
         } catch (IOException e) {
             System.out.println("读取成绩数据失败：" + e.getMessage());
         }
-
     }
 }

@@ -36,7 +36,7 @@ public class SubjectManager {
     public static void addSubject(Scanner scanner) {
         System.out.println("------------------------");
         System.out.println("输入科目名称: ");
-        String subName = scanner.nextLine().trim();
+        String subName = ToolUtil.readLine(scanner);
         //空名检测
         if (subName.isEmpty()) {
             System.out.println("科目名称不能为空，已取消添加");
@@ -69,7 +69,7 @@ public class SubjectManager {
         System.out.println("已选择科目：" + subject.getSubName());
 
         System.out.print("确认删除该科目以及其所有成绩?(Y/N): ");
-        String confirm = scanner.nextLine().trim();
+        String confirm = ToolUtil.readLine(scanner);
         if (!confirm.equalsIgnoreCase("Y")) {
             System.out.println("已取消删除");
             return;
@@ -169,7 +169,7 @@ public class SubjectManager {
         System.out.println("0.返回");
         System.out.print("请输入序号或者科目编号：");
 
-        String input = scanner.nextLine().trim();
+        String input = ToolUtil.readLine(scanner);
         if (input.equals("0")) {
             return null;
         }
@@ -193,10 +193,11 @@ public class SubjectManager {
         }
     }
     //从文件加载一条科目数据
-    public static void loadSubject(String subId, String subName) {
+    public static boolean loadSubject(String subId, String subName) {
         subId = ToolUtil.normalizeId(subId);
-        if (subId.isEmpty()) return;
+        if (subId.isEmpty()) return false;
         subjectList.add(new Subject(subId, subName));
+        return true;
     }
     //只读快照
     public static List<Subject> snapshotSubjects() {

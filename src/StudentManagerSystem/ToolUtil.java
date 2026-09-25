@@ -73,8 +73,6 @@ public class ToolUtil {
         return sb.toString();
     }
 
-
-
     //全局输入校验方法
     /*  
     * 从控制台读取一个整数，并限制在指定范围内。
@@ -89,7 +87,7 @@ public class ToolUtil {
         int result;
         while (true) {
             System.out.print(prompt);
-            String input = scanner.nextLine().trim();//读取一行去掉首尾空格
+            String input = readLine(scanner);//读取一行去掉首尾空格
 
             try {
                 result = Integer.parseInt(input);
@@ -107,7 +105,7 @@ public class ToolUtil {
         double result;
         while (true) {
             System.out.print(prompt);
-            String input = scanner.nextLine().trim();//读取一行去掉首尾空格
+            String input = readLine(scanner);//读取一行去掉首尾空格
 
             try {
                 result = Double.parseDouble(input);
@@ -129,6 +127,21 @@ public class ToolUtil {
     //归一化处理方法
     public static String normalizeId(String id) {
         return id == null ? "" : id.trim().toUpperCase();
+    }
+
+    //输入流已结束（crtl+z 或管道输入耗尽）时抛出
+    public static class InputCloseException extends RuntimeException {
+        public InputCloseException(String message) {
+            super(message);
+        }
+    }
+
+    //读一行去掉首尾空格，如果输入流已结束，抛出InputCloseException
+    public static String readLine(Scanner scanner) {
+        if (!scanner.hasNextLine()) {
+            throw new InputCloseException("输入流已结束");
+        }
+        return scanner.nextLine().trim();
     }
 
     //===========通用表格渲染===========
