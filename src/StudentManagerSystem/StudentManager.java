@@ -29,7 +29,6 @@ public class StudentManager {
                     if (deleted != null) {
                         onStudentDeleted.accept(deleted.getId());
                     }
-
                 }
                 case 3 -> listStudent();
                 case 0 -> { return; }
