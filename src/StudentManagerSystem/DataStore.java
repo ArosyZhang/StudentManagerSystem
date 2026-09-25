@@ -87,20 +87,16 @@ public class DataStore {
             while ((line = br.readLine()) != null) {
                 lineNo++;
                 if (line.trim().isEmpty()) continue;    
-                String[] parts = line.split("\\|");
+                String[] parts = line.split("\\|", -1);
 
                 if (parts.length < 3) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
                     skipped++;
                     continue;
                 }
-                try {
-                    if (!StudentManager.loadStudent(parts[0].trim(), parts[1].trim(), Integer.parseInt(parts[2].trim()))) {
-                        System.out.println(file.getName() + " 第 " + lineNo + " 行学号为空，已跳过：" + line);
-                        skipped++;
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行学生年龄格式错误，已跳过：" + line);
+                String reason = StudentManager.loadStudent(parts[0].trim(), parts[1].trim(), parts[2].trim());
+                if (reason != null) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;
                 }
             }
@@ -123,15 +119,16 @@ public class DataStore {
             while ((line = br.readLine()) != null) {
                 lineNo++;
                 if (line.trim().isEmpty()) continue;                    
-                String[] parts = line.split("\\|");
+                String[] parts = line.split("\\|", -1);
                 
                 if (parts.length < 2) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
                     skipped++;
                     continue;
                 }
-                if (!SubjectManager.loadSubject(parts[0].trim(), parts[1].trim())) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行科目编号为空，已跳过：" + line);
+                String reason = SubjectManager.loadSubject(parts[0].trim(), parts[1].trim());
+                if (reason != null) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;
                 }
             }
@@ -154,23 +151,18 @@ public class DataStore {
             while ((line = br.readLine()) != null) {
                 lineNo++;
                 if (line.trim().isEmpty()) continue; 
-                String[] parts = line.split("\\|");
+                String[] parts = line.split("\\|", -1);
 
                 if (parts.length < 3) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
                     skipped++;
                     continue;
                 }
-                try {
-                    String reason = ScoreManager.loadScore(parts[0].trim(), parts[1].trim(), Double.parseDouble(parts[2].trim()));
-                    if (reason != null) {
-                        System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + ",已跳过：" + line);
-                        skipped++;
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行成绩格式错误，已跳过：" + line);
+                String reason = ScoreManager.loadScore(parts[0].trim(), parts[1].trim(), parts[2].trim());
+                if (reason != null) {
+                    System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;
-                }
+                }                
             }
             if (skipped > 0) {
                 System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");

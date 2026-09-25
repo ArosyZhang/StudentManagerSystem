@@ -12,7 +12,8 @@ public class ScoreManager {
     private static Map<String, Map<String,Double>> scoreMap = new HashMap<>();
     //分数容差
     private static final double SCORE_EPSILON = 1e-6;
-
+    private static final double SCORE_MIN = 0.0;
+    private static final double SCORE_MAX = 100.0;
     public static void scoreMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n===== 成绩管理菜单 =====");
@@ -70,7 +71,7 @@ public class ScoreManager {
                 break;
             }
 
-            double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", 0, 100);
+            double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
             boolean saved = addOrUpdateScore(scanner,student.getStuId(), subject.getSubId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
@@ -96,7 +97,7 @@ public class ScoreManager {
                 break;
             }
 
-            double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", 0, 100);
+            double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
             boolean saved = addOrUpdateScore(scanner,student.getStuId(), subject.getSubId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
@@ -407,12 +408,19 @@ public class ScoreManager {
         System.out.println("随机成绩初始化完成。");
     }
 
-    //从文件加载一条
-    public static String loadScore(String studentId, String subjectId, double score) {
+    //从文件加载一条成绩数据。成功返回 null，失败返回原因
+    public static String loadScore(String studentId, String subjectId, String scoreText) {
         studentId = ToolUtil.normalizeId(studentId);
         subjectId = ToolUtil.normalizeId(subjectId);
         if (studentId.isEmpty()) return "学号为空";
         if (subjectId.isEmpty()) return "科目编号为空";
+        double score;
+        try {
+            score = Double.parseDouble(scoreText);
+        } catch (NumberFormatException e) {
+            return "分数不是数字";
+        }
+        if (score < SCORE_MIN || score > SCORE_MAX) return "分数超出 " + SCORE_MIN + "~" + SCORE_MAX + " 范围";
         scoreMap.computeIfAbsent(studentId, k -> new HashMap<>()).put(subjectId, score);
         return null;
     }

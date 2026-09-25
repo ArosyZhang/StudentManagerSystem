@@ -8,6 +8,8 @@ public class StudentManager {
     //常量，消除魔法值
     private static final String ID_PREFIX = "STU";
     private static final int ID_DIGITS = 3;
+    private static final int AGE_MIN = 12;
+    private static final int AGE_MAX = 40;
 
     private static final ArrayList<Student> studentList = new ArrayList<>();
 
@@ -50,7 +52,7 @@ public class StudentManager {
         }
                     
         System.out.println("------------------------");
-        int age = ToolUtil.readInt(scanner, "输入学生年龄: ", 12, 40);
+        int age = ToolUtil.readInt(scanner, "输入学生年龄: ", AGE_MIN, AGE_MAX);
 
         String stuId = setStudentId(studentList);
         studentList.add(new Student(stuId, stuName, age));
@@ -212,12 +214,20 @@ public class StudentManager {
             return stu;
         }      
     }
-    //从文件加载一条学生数据
-    public static boolean loadStudent(String stuId, String stuName, int stuAge) {
+    //从文件加载一条学生数据。成功返回 null，失败返回原因
+    public static String loadStudent(String stuId, String stuName, String stuAgeText) {
         stuId = ToolUtil.normalizeId(stuId);
-        if (stuId.isEmpty()) return false;
+        if (stuId.isEmpty()) return "学号为空";
+        if (stuName.isEmpty()) return "姓名为空";
+        int stuAge;
+        try {
+            stuAge = Integer.parseInt(stuAgeText);
+        } catch (NumberFormatException e) {
+            return "年龄不是数字";
+        }
+        if (stuAge < AGE_MIN || stuAge > AGE_MAX) return "年龄超出范围";
         studentList.add(new Student(stuId, stuName, stuAge));
-        return true;
+        return null;
     }
     //只读快照
     public static List<Student> snapshotStudents() {

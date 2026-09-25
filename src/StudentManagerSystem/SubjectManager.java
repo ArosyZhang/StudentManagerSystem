@@ -192,12 +192,13 @@ public class SubjectManager {
             return sub;
         }
     }
-    //从文件加载一条科目数据
-    public static boolean loadSubject(String subId, String subName) {
+    //从文件加载一条科目数据。成功返回 null，失败返回原因
+    public static String loadSubject(String subId, String subName) {
         subId = ToolUtil.normalizeId(subId);
-        if (subId.isEmpty()) return false;
+        if (subId.isEmpty()) return "科目编号为空";
+        if (subName.isEmpty()) return "科目名称为空";
         subjectList.add(new Subject(subId, subName));
-        return true;
+        return null;
     }
     //只读快照
     public static List<Subject> snapshotSubjects() {
