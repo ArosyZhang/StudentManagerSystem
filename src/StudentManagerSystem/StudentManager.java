@@ -6,12 +6,10 @@ import java.util.Scanner;
 public class StudentManager {
 
     //常量，消除魔法值
-    private static final String ID_PREFIX = "STU";
-    private static final int ID_DIGITS = 3;
     private static final int AGE_MIN = 12;
     private static final int AGE_MAX = 40;
 
-    private static final ArrayList<Student> studentList = new ArrayList<>();
+    private static final Repository<Student> studentRepo = new Repository<>("STU", 3, "学生");
 
     public static void studentManager(Scanner scanner){
         while (true) {
@@ -44,7 +42,7 @@ public class StudentManager {
             return;
         }
         //重复名校验
-        boolean exist = studentList.stream().anyMatch(s -> s.getName().equalsIgnoreCase(stuName));
+        boolean exist = studentRepo.snapshot().stream().anyMatch(s -> s.getName().equalsIgnoreCase(stuName));
 
         if (exist) {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -54,8 +52,8 @@ public class StudentManager {
         System.out.println("------------------------");
         int age = ToolUtil.readInt(scanner, "输入学生年龄: ", AGE_MIN, AGE_MAX);
 
-        String stuId = setStudentId(studentList);
-        studentList.add(new Student(stuId, stuName, age));
+        String stuId = studentRepo.generateId();
+        studentRepo.add(new Student(stuId, stuName, age));
         DataStore.saveAll();//更新数据
         System.out.println("------------------------"); 
         System.out.println("成功添加 " + stuName + " 同学 年龄：" + age);
@@ -80,33 +78,17 @@ public class StudentManager {
             return;
         }
 
-        studentList.remove(student);
+        studentRepo.remove(student);
         ScoreManager.removeScoreByStudent(student.getId());//绑定删除成绩
         DataStore.saveAll();//更新数据
         System.out.println("已删除学生： " + student.getName());
      
-    }
-
-    //自动生成学生ID
-    public static String setStudentId(ArrayList<Student> studentList){
-        int maxNum = 0;
-        for (Student stu : studentList) {
-            String numStr = stu.getId().substring(ID_PREFIX.length());
-            int num = Integer.parseInt(numStr);
-            if(num > maxNum){
-                maxNum = num;
-            }
-        }
-        int newNum = maxNum + 1;
-        if (newNum > (int) Math.pow(10, ID_DIGITS) - 1) {
-            throw new IllegalStateException("学生ID已达到最大值,无法生成新的ID");
-        }
-        return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
-    }   
+    }  
 
     //打印全部学生
     public static void listStudent() {
-        if (studentList.isEmpty()) {
+        List<Student> students = studentRepo.snapshot();
+        if (students.isEmpty()) {
             System.out.println("学生列表为空"); 
             return;        
         }
@@ -114,41 +96,13 @@ public class StudentManager {
         String[] headers = {"学号", "姓名", "年龄"};
         int[] widths = {10, 14, 6};
 
-        ToolUtil.printTable("学生列表", headers, widths, studentList, (s, i) -> new String[]{
+        ToolUtil.printTable("学生列表", headers, widths, students, (s, i) -> new String[]{
             s.getId(),
             s.getName(), 
             String.valueOf(s.getStuAge())
         });    
     }
 
-    //判断输入是否为学生学号
-    public static boolean isStudentId(String enterStr){
-
-        if (enterStr == null) return false;
-        String upper = enterStr.toUpperCase();
-
-        return
-        upper.startsWith(ID_PREFIX)
-        && upper.length() == ID_PREFIX.length() + ID_DIGITS
-        && upper.substring(ID_PREFIX.length()).matches("\\d+");
-
-    }
-
-    //静态方法，通过id找name
-    public static String getName(String studentId) {
-        Student stu = findStudentById(studentId);
-        return (stu != null) ? stu.getName() : "未知学生";
-    }
-
-    //检查学生是否存在 返回学生对象，包括姓名
-    public static Student findStudentById(String studentId ){
-        for (Student s : studentList) {
-            if (s.getId().equalsIgnoreCase(studentId)) {
-                return s;
-            }
-        }
-        return null;
-    }
     /**
      * 让用户选择学生
      * 用户可以输入序号（1.2.3...）选择，也可以输入精确编号来选择
@@ -156,7 +110,7 @@ public class StudentManager {
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
     public static Student chooseStudent(Scanner scanner) {
-        List<Student> students = snapshotStudents();
+        List<Student> students = studentRepo.snapshot();
         if (students.isEmpty()) {
             System.out.println("暂无学生，请先在学生管理中添加");
             return null;
@@ -188,12 +142,12 @@ public class StudentManager {
             }
         } catch (NumberFormatException e) {
             // 不是数字，先当学号查
-            Student stu = findStudentById(input);
+            Student stu = studentRepo.findById(input);
 
             if (stu == null) {
                 //学号没找到，再尝试按姓名查
                 List<Student> matched = new ArrayList<>();
-                for (Student s : studentList) {
+                for (Student s : students) {
                     if (s.getName().equalsIgnoreCase(input)) {
                         matched.add(s);
                     }
@@ -202,12 +156,12 @@ public class StudentManager {
                     System.out.println("未找到学号或姓名为 " + input + " 的学生");
                     return null;
                 }
-                if (matched.size() >1) {
+                if (matched.size() > 1) {
                     System.out.println("存在多个同名学生，请改用学号选择：");
                     for (Student s : matched) {
                         System.out.println("  " + s.getId() + " - " + s.getName());
                     }
-                        return null;
+                    return null;
                 }
                 stu = matched.get(0);
             }
@@ -218,6 +172,7 @@ public class StudentManager {
     public static String loadStudent(String stuId, String stuName, String stuAgeText) {
         stuId = ToolUtil.normalizeId(stuId);
         if (stuId.isEmpty()) return "学号为空";
+        if (!studentRepo.isId(stuId)) return "学号格式错误"; 
         if (stuName.isEmpty()) return "姓名为空";
         int stuAge;
         try {
@@ -226,15 +181,19 @@ public class StudentManager {
             return "年龄不是数字";
         }
         if (stuAge < AGE_MIN || stuAge > AGE_MAX) return "年龄超出范围";
-        studentList.add(new Student(stuId, stuName, stuAge));
+        studentRepo.add(new Student(stuId, stuName, stuAge));
         return null;
     }
-    //只读快照
+    
     public static List<Student> snapshotStudents() {
-        return List.copyOf(studentList); 
+        return studentRepo.snapshot();
     }
-    //清空
+
     public static void clearStudents() {
-        studentList.clear();
+        studentRepo.clear();
+    }
+
+    public static String getNameById(String studentId) {
+        return studentRepo.getNameById(studentId);
     }
 }

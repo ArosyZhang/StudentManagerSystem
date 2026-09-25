@@ -122,7 +122,7 @@ public class ScoreManager {
         if (studentScores.containsKey(normSubjectId)) {
             double oldScore = studentScores.get(normSubjectId);
 
-            String stuName = StudentManager.getName(normStudentId);
+            String stuName = StudentManager.getNameById(normStudentId);
             String subName = SubjectManager.getName(normSubjectId);
 
             System.out.printf("该学生已有成绩：%s 的 %s 为 %.1f 分。 %n", stuName, subName, oldScore);
@@ -140,7 +140,7 @@ public class ScoreManager {
         DataStore.saveAll();//更新数据
 
         //提示添加成功
-        String stuName = StudentManager.getName(normStudentId);
+        String stuName = StudentManager.getNameById(normStudentId);
         String subName = SubjectManager.getName(normSubjectId);
         System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数: " + score);
         return true;
@@ -261,7 +261,7 @@ public class ScoreManager {
                 lastScore = score;
             }
 
-            String name = ToolUtil.truncate(StudentManager.getName(studentId), 12);
+            String name = ToolUtil.truncate(StudentManager.getNameById(studentId), 12);
             System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);    
         }
     }
