@@ -16,8 +16,19 @@ public class DataStore {
     private static final String SUBJECT_FILE = DATA_DIR + "/subjects.txt";
     private static final String SCORE_FILE = DATA_DIR + "/scores.txt";
 
+    private final StudentManager studentManager;
+    private final SubjectManager subjectManager;
+    private final ScoreManager scoreManager;
+
+    public DataStore(StudentManager studentManager, SubjectManager subjectManager, ScoreManager scoreManager) {
+        this.studentManager = studentManager;
+        this.subjectManager = subjectManager;
+        this.scoreManager = scoreManager;
+    }
+
+
     //确保data目录存在
-    private static void ensureDir() {
+    private void ensureDir() {
         File dir = new File(DATA_DIR);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -25,16 +36,16 @@ public class DataStore {
     }
 
     //=====保存=====
-    public static void saveAll() {
+    public void saveAll() {
         ensureDir();
         saveStudents();
         saveSubjects();
         saveScores();
     }
 
-    private static void saveStudents() {
+    private void saveStudents() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(STUDENT_FILE),"UTF-8"))){
-            for (Student s : StudentManager.snapshotStudents()) {
+            for (Student s : studentManager.snapshotStudents()) {
                 bw.write(s.getId() + "|" + s.getName() + "|" + s.getStuAge());
                 bw.newLine();
             }            
@@ -43,9 +54,9 @@ public class DataStore {
         }
     }
 
-    private static void saveSubjects() {
+    private void saveSubjects() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SUBJECT_FILE),"UTF-8"))){
-            for (Subject s : SubjectManager.snapshotSubjects()) {
+            for (Subject s : subjectManager.snapshotSubjects()) {
                 bw.write(s.getId() + "|" + s.getName());
                 bw.newLine();
             }            
@@ -54,9 +65,9 @@ public class DataStore {
         }
     }
 
-    private static void saveScores() {
+    private void saveScores() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SCORE_FILE),"UTF-8"))){
-            for (Map.Entry<String, Map<String, Double>> outer : ScoreManager.snapshotScores().entrySet()) {
+            for (Map.Entry<String, Map<String, Double>> outer : scoreManager.snapshotScores().entrySet()) {
                 String studentId = outer.getKey();
                 for (Map.Entry<String, Double> inner : outer.getValue().entrySet()) {
                     bw.write(studentId + "|" + inner.getKey() + "|" + inner.getValue());
@@ -69,15 +80,15 @@ public class DataStore {
     }
 
     //=====读取=====
-    public static void loadAll() {
+    public void loadAll() {
         ensureDir();
         loadStudents();
         loadSubjects();
         loadScores();
     }
 
-    private static void loadStudents() {
-        StudentManager.clearStudents();
+    private void loadStudents() {
+        studentManager.clearStudents();
         File file= new File(STUDENT_FILE);
         if (!file.exists()) return ;
         int lineNo = 0;
@@ -94,7 +105,7 @@ public class DataStore {
                     skipped++;
                     continue;
                 }
-                String reason = StudentManager.loadStudent(parts[0].trim(), parts[1].trim(), parts[2].trim());
+                String reason = studentManager.loadStudent(parts[0].trim(), parts[1].trim(), parts[2].trim());
                 if (reason != null) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;
@@ -108,8 +119,8 @@ public class DataStore {
         }
     }
 
-    private static void loadSubjects() {
-        SubjectManager.clearSubjects();
+    private void loadSubjects() {
+        subjectManager.clearSubjects();
         File file= new File(SUBJECT_FILE);
         if (!file.exists()) return ;
         int lineNo = 0;
@@ -125,8 +136,8 @@ public class DataStore {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
                     skipped++;
                     continue;
-                }
-                String reason = SubjectManager.loadSubject(parts[0].trim(), parts[1].trim());
+                }  
+                String reason = subjectManager.loadSubject(parts[0].trim(), parts[1].trim());
                 if (reason != null) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;
@@ -140,8 +151,8 @@ public class DataStore {
         }
     }
 
-    private static void loadScores() {
-        ScoreManager.clearScores();
+    private void loadScores() {
+        scoreManager.clearScores();
         File file = new File(SCORE_FILE);
         if (!file.exists()) return;
         int lineNo = 0;
@@ -158,7 +169,7 @@ public class DataStore {
                     skipped++;
                     continue;
                 }
-                String reason = ScoreManager.loadScore(parts[0].trim(), parts[1].trim(), parts[2].trim());
+                String reason = scoreManager.loadScore(parts[0].trim(), parts[1].trim(), parts[2].trim());
                 if (reason != null) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;

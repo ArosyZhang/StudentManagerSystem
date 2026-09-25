@@ -8,13 +8,21 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class ScoreManager {
-
-    private static Map<String, Map<String,Double>> scoreMap = new HashMap<>();
     //分数容差
     private static final double SCORE_EPSILON = 1e-6;
     private static final double SCORE_MIN = 0.0;
     private static final double SCORE_MAX = 100.0;
-    public static void scoreMenu(Scanner scanner) {
+
+    private final Map<String, Map<String,Double>> scoreMap = new HashMap<>();
+
+    private final StudentManager studentManager;
+    private final SubjectManager subjectManager;
+    
+    public ScoreManager(StudentManager studentManager,SubjectManager subjectManager) {
+        this.studentManager = studentManager;
+        this.subjectManager = subjectManager;
+    }
+    public void scoreMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n===== 成绩管理菜单 =====");
             System.out.println("1.成绩录入");
@@ -33,7 +41,7 @@ public class ScoreManager {
     }
 
     //--- 成绩录入 ---
-    public static void enterScoreMenu(Scanner scanner){
+    public void enterScoreMenu(Scanner scanner){
         while (true) {
             System.out.println("\n=== 成绩录入 ===");
             System.out.println("1.按科目录入");
@@ -54,10 +62,10 @@ public class ScoreManager {
     }
 
     //按科目录入：先选择一个科目，然后为该科目下的多个学生录入成绩
-    private static void enterBySubject(Scanner scanner) {
+    private void enterBySubject(Scanner scanner) {
         
         //1.显示所有科目，让用户选择科目
-        Subject subject = SubjectManager.chooseSubject(scanner);
+        Subject subject = subjectManager.chooseSubject(scanner);
         if (subject == null) {
             return;
         }
@@ -65,7 +73,7 @@ public class ScoreManager {
 
         //循环选择学生录入成绩
         while (true) {
-            Student student = StudentManager.chooseStudent(scanner);
+            Student student = studentManager.chooseStudent(scanner);
             if (student == null) {
                 System.out.println("结束录入，返回上级菜单");
                 break;
@@ -80,10 +88,10 @@ public class ScoreManager {
     }
 
     //按学生录入：先选择一个学生，然后为该学生的多个科目录入成绩
-    private static void enterByStudent(Scanner scanner) {
+    private void enterByStudent(Scanner scanner) {
         
         //1.选择学生
-        Student student = StudentManager.chooseStudent(scanner);
+        Student student = studentManager.chooseStudent(scanner);
         if (student == null) {
             return;
         }
@@ -91,7 +99,7 @@ public class ScoreManager {
 
         //循环选择学生录入成绩
         while (true) {
-            Subject subject = SubjectManager.chooseSubject(scanner);
+            Subject subject = subjectManager.chooseSubject(scanner);
             if (subject == null) {
                 System.out.println("结束录入，返回上级菜单");
                 break;
@@ -106,7 +114,7 @@ public class ScoreManager {
     }
 
     //添加和更新成绩（已存在则覆盖）
-    public static boolean addOrUpdateScore(Scanner scanner, String studentId, String subjectId,double score) {
+    public boolean addOrUpdateScore(Scanner scanner, String studentId, String subjectId,double score) {
         //入口归一化处理
         String normStudentId = ToolUtil.normalizeId(studentId);
         String normSubjectId = ToolUtil.normalizeId(subjectId);
@@ -122,8 +130,8 @@ public class ScoreManager {
         if (studentScores.containsKey(normSubjectId)) {
             double oldScore = studentScores.get(normSubjectId);
 
-            String stuName = StudentManager.getNameById(normStudentId);
-            String subName = SubjectManager.getNameById(normSubjectId);
+            String stuName = studentManager.getNameById(normStudentId);
+            String subName = subjectManager.getNameById(normSubjectId);
 
             System.out.printf("该学生已有成绩：%s 的 %s 为 %.1f 分。 %n", stuName, subName, oldScore);
             System.out.print("是否覆盖旧成绩(Y/N): ");
@@ -137,17 +145,16 @@ public class ScoreManager {
 
         //"科目编号"、"覆盖旧分数"
         studentScores.put(normSubjectId,score);
-        DataStore.saveAll();//更新数据
 
         //提示添加成功
-        String stuName = StudentManager.getNameById(normStudentId);
-        String subName = SubjectManager.getNameById(normSubjectId);
+        String stuName = studentManager.getNameById(normStudentId);
+        String subName = subjectManager.getNameById(normSubjectId);
         System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数: " + score);
         return true;
     }
 
     //--- 成绩查询与统计 ---
-    public static void queryMenu(Scanner scanner) {
+    public void queryMenu(Scanner scanner) {
         while (true) {
 
             System.out.println("\n=== 成绩查询 ===");
@@ -166,10 +173,10 @@ public class ScoreManager {
     }
 
     //查询某个学生的所有科目成绩
-    private static void queryStudentScores(Scanner scanner) {
+    private void queryStudentScores(Scanner scanner) {
 
         //选择学生
-        Student student = StudentManager.chooseStudent(scanner);
+        Student student = studentManager.chooseStudent(scanner);
         if (student == null) {
             System.out.println("已取消查询");
             return;
@@ -182,7 +189,7 @@ public class ScoreManager {
             System.out.println("学生 " + student.getName() + " 暂无任何科目成绩");
             return;
         }
-        List<Subject> subjects = SubjectManager.snapshotSubjects();
+        List<Subject> subjects = subjectManager.snapshotSubjects();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目数据");
             return ;
@@ -216,9 +223,9 @@ public class ScoreManager {
     }
 
     //单科目成绩排名：输入科目编号或科目名，输出该科目所有学生的成绩降序排列
-    private static void subjectRanking(Scanner scanner) {
+    private void subjectRanking(Scanner scanner) {
         //选择科目
-        Subject subject = SubjectManager.chooseSubject(scanner);
+        Subject subject = subjectManager.chooseSubject(scanner);
         if (subject == null) {
             System.out.println("已取消查询");
             return;  
@@ -261,18 +268,18 @@ public class ScoreManager {
                 lastScore = score;
             }
 
-            String name = ToolUtil.truncate(StudentManager.getNameById(studentId), 12);
+            String name = ToolUtil.truncate(studentManager.getNameById(studentId), 12);
             System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);    
         }
     }
 
     //--- 数据清理（删除学生/科目时调用） ---
     //删除某个学生的所有成绩
-    public static void removeScoreByStudent(String studentId) {   
+    public void removeScoreByStudent(String studentId) {   
         scoreMap.remove(ToolUtil.normalizeId(studentId));    
     }
     //删除某个科目的所有成绩（遍历所有学生，移除该科目）
-    public static void removeScoreBySubject(String subjectId) { 
+    public void removeScoreBySubject(String subjectId) { 
         String normalizedSubjectId = ToolUtil.normalizeId(subjectId);
         for (Map<String,Double> scores : scoreMap.values()) {
             scores.remove(normalizedSubjectId);
@@ -288,10 +295,10 @@ public class ScoreManager {
         double average; 
         int rank; //名次  
     }
-    public static void showAllScoresTable() {
+    public void showAllScoresTable() {
         //1.获取所有科目
-        List<Subject> subjects = SubjectManager.snapshotSubjects();
-        List<Student> students = StudentManager.snapshotStudents();
+        List<Subject> subjects = subjectManager.snapshotSubjects();
+        List<Student> students = studentManager.snapshotStudents();
 
         if (students.isEmpty()) {
             System.out.println("暂无学生数据");
@@ -379,15 +386,15 @@ public class ScoreManager {
             return cells;
         }); 
     }
-
+    
     //初始化成绩（测试）
-    public static void initRandomScores() {
+    public void initRandomScores() {
         if (!scoreMap.isEmpty()) return;  // 避免重复初始化
         Random random = new Random();
 
         // 获取学生和科目列表
-        List<Student> students = StudentManager.snapshotStudents();
-        List<Subject> subjects = SubjectManager.snapshotSubjects();
+        List<Student> students = studentManager.snapshotStudents();
+        List<Subject> subjects = subjectManager.snapshotSubjects();
 
         if (students.isEmpty() || subjects.isEmpty()) {
 
@@ -409,7 +416,7 @@ public class ScoreManager {
     }
 
     //从文件加载一条成绩数据。成功返回 null，失败返回原因
-    public static String loadScore(String studentId, String subjectId, String scoreText) {
+    public String loadScore(String studentId, String subjectId, String scoreText) {
         studentId = ToolUtil.normalizeId(studentId);
         subjectId = ToolUtil.normalizeId(subjectId);
         if (studentId.isEmpty()) return "学号为空";
@@ -426,11 +433,11 @@ public class ScoreManager {
     }
 
     //只读快照
-    public static Map<String, Map<String, Double>> snapshotScores() {
+    public Map<String, Map<String, Double>> snapshotScores() {
         return Map.copyOf(scoreMap); //浅拷贝，外层不可变，内层仍可变
     }
     //清空
-    public static void clearScores() {
+    public void clearScores() {
         scoreMap.clear();
     }
      

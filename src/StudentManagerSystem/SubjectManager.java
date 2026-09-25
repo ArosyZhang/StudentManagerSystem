@@ -1,13 +1,14 @@
 package StudentManagerSystem;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class SubjectManager {
 
     //常量，消除魔法值
-    private static final Repository<Subject> subjectRepo = new Repository<>("SUB", 3, "科目");
+    private final Repository<Subject> subjectRepo = new Repository<>("SUB", 3, "科目");
 
-    public static void showSubjectMenu(Scanner scanner ) {
+    public void showSubjectMenu(Scanner scanner, Consumer<String> onSunjectDeleted) {
 
         while (true) {
             System.out.println("\n===== 科目管理菜单 =====");
@@ -29,7 +30,7 @@ public class SubjectManager {
     }
 
     //添加科目 重复名校验 自动生成编号
-    public static void addSubject(Scanner scanner) {
+    public void addSubject(Scanner scanner) {
         System.out.println("------------------------");
         System.out.println("输入科目名称: ");
         String subName = ToolUtil.readLine(scanner);
@@ -48,18 +49,17 @@ public class SubjectManager {
     
         String subId = subjectRepo.generateId();
         subjectRepo.add(new Subject(subId, subName));
-        DataStore.saveAll();//更新数据
         System.out.println("------------------------"); 
         System.out.println("添加《" + subName + "》 成功");
     }
 
     //删除科目，包括同名删除，确认删除，选择序号删除
-    public static void deleteSubject(Scanner scanner) {
+    public Subject deleteSubject(Scanner scanner) {
         System.out.println("请选择要删除科目的序号、名称或编号之一: ");
         Subject subject = chooseSubject(scanner);
         if (subject == null) {
             System.out.println("已取消删除");
-            return;
+            return null;
         }
 
         System.out.println("已选择科目：" + subject.getName());
@@ -68,18 +68,16 @@ public class SubjectManager {
         String confirm = ToolUtil.readLine(scanner);
         if (!confirm.equalsIgnoreCase("Y")) {
             System.out.println("已取消删除");
-            return;
+            return null;
         }
 
         subjectRepo.remove(subject);
-        ScoreManager.removeScoreBySubject(subject.getId());//绑定删除成绩
-        DataStore.saveAll();//更新数据
         System.out.println("已删除科目和其所有成绩： " + subject.getName());
-     
+        return subject;
     }
 
     //打印全部科目
-    public static void listSubject(){
+    public void listSubject(){
         List<Subject> subjects = subjectRepo.snapshot();
 
         if(subjects.isEmpty()){
@@ -101,7 +99,7 @@ public class SubjectManager {
      * 输入0表示放弃选择
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
-    public static Subject chooseSubject(Scanner scanner) {
+    public Subject chooseSubject(Scanner scanner) {
         List<Subject> subjects = snapshotSubjects();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目，请先在科目管理中添加");
@@ -144,7 +142,7 @@ public class SubjectManager {
         }
     }
     //从文件加载一条科目数据。成功返回 null，失败返回原因
-    public static String loadSubject(String subId, String subName) {
+    public String loadSubject(String subId, String subName) {
         subId = ToolUtil.normalizeId(subId);
         if (subId.isEmpty()) return "科目编号为空";
         if (!subjectRepo.isId(subId)) return "科目编号格式错误"; 
@@ -153,15 +151,15 @@ public class SubjectManager {
         return null;
     }
     //只读快照
-    public static List<Subject> snapshotSubjects() {
+    public List<Subject> snapshotSubjects() {
         return subjectRepo.snapshot(); 
     }
     //清空
-    public static void clearSubjects() {
+    public void clearSubjects() {
         subjectRepo.clear();
     }
 
-    public static String getNameById(String subjectId) {
+    public String getNameById(String subjectId) {
         return subjectRepo.getNameById(subjectId);    
     }
 }

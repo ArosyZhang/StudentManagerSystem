@@ -2,6 +2,7 @@ package StudentManagerSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class StudentManager {
 
@@ -9,9 +10,9 @@ public class StudentManager {
     private static final int AGE_MIN = 12;
     private static final int AGE_MAX = 40;
 
-    private static final Repository<Student> studentRepo = new Repository<>("STU", 3, "学生");
+    private final Repository<Student> studentRepo = new Repository<>("STU", 3, "学生");
 
-    public static void studentManager(Scanner scanner){
+    public void showStudentMenu(Scanner scanner, Consumer<String> onStudentDeleted){
         while (true) {
             System.out.println("\n===== 学生管理菜单 =====");
             System.out.println("1. 添加学生");
@@ -23,7 +24,13 @@ public class StudentManager {
             
             switch (studentManagerChoice) {
                 case 1 -> addStudent(scanner);   
-                case 2 -> deleteStudent(scanner);
+                case 2 -> {
+                    Student deleted = deleteStudent(scanner);
+                    if (deleted != null) {
+                        onStudentDeleted.accept(deleted.getId());
+                    }
+
+                }
                 case 3 -> listStudent();
                 case 0 -> { return; }
                 default -> System.out.println("输入错误，请重新输入");
@@ -32,7 +39,7 @@ public class StudentManager {
     }
 
     //添加学生 重复名校验 自动生成学号
-    public static void addStudent(Scanner scanner) {
+    public void addStudent(Scanner scanner) {
         System.out.println("------------------------");
         System.out.println("输入学生姓名: ");
         String stuName = ToolUtil.readLine(scanner);
@@ -54,19 +61,18 @@ public class StudentManager {
 
         String stuId = studentRepo.generateId();
         studentRepo.add(new Student(stuId, stuName, age));
-        DataStore.saveAll();//更新数据
         System.out.println("------------------------"); 
         System.out.println("成功添加 " + stuName + " 同学 年龄：" + age);
         System.out.println("唯一学号为：" + stuId);
     }
 
     //删除学生，包括同名删除，确认删除，支持通过姓名，学号，选择序号删除
-    public static void deleteStudent(Scanner scanner) {
+    public Student deleteStudent(Scanner scanner) {
         System.out.println("请选择要删除学生的序号、姓名或学号之一: ");
         Student student = chooseStudent(scanner);
         if (student == null) {
             System.out.println("已取消删除");
-            return;
+            return null;
         }
 
         System.out.println("已选择学生：" + student.getName());
@@ -75,18 +81,16 @@ public class StudentManager {
         String confirm = ToolUtil.readLine(scanner);
         if (!confirm.equalsIgnoreCase("Y")) {
             System.out.println("已取消删除");
-            return;
+            return null;
         }
 
         studentRepo.remove(student);
-        ScoreManager.removeScoreByStudent(student.getId());//绑定删除成绩
-        DataStore.saveAll();//更新数据
         System.out.println("已删除学生： " + student.getName());
-     
+        return student;
     }  
 
     //打印全部学生
-    public static void listStudent() {
+    public void listStudent() {
         List<Student> students = studentRepo.snapshot();
         if (students.isEmpty()) {
             System.out.println("学生列表为空"); 
@@ -109,7 +113,7 @@ public class StudentManager {
      * 输入0表示放弃选择
      * @return 选中的对象；如果用户取消或选择无效 返回null
      */
-    public static Student chooseStudent(Scanner scanner) {
+    public Student chooseStudent(Scanner scanner) {
         List<Student> students = studentRepo.snapshot();
         if (students.isEmpty()) {
             System.out.println("暂无学生，请先在学生管理中添加");
@@ -169,7 +173,7 @@ public class StudentManager {
         }      
     }
     //从文件加载一条学生数据。成功返回 null，失败返回原因
-    public static String loadStudent(String stuId, String stuName, String stuAgeText) {
+    public String loadStudent(String stuId, String stuName, String stuAgeText) {
         stuId = ToolUtil.normalizeId(stuId);
         if (stuId.isEmpty()) return "学号为空";
         if (!studentRepo.isId(stuId)) return "学号格式错误"; 
@@ -185,15 +189,15 @@ public class StudentManager {
         return null;
     }
     
-    public static List<Student> snapshotStudents() {
+    public List<Student> snapshotStudents() {
         return studentRepo.snapshot();
     }
 
-    public static void clearStudents() {
+    public void clearStudents() {
         studentRepo.clear();
     }
 
-    public static String getNameById(String studentId) {
+    public String getNameById(String studentId) {
         return studentRepo.getNameById(studentId);
     }
 }
