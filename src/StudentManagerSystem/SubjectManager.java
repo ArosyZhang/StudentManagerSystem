@@ -1,15 +1,11 @@
 package StudentManagerSystem;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class SubjectManager {
 
     //常量，消除魔法值
-    private static final String ID_PREFIX = "SUB";
-    private static final int ID_DIGITS = 3;
-
-    private static final ArrayList<Subject> subjectList = new ArrayList<>();
+    private static final Repository<Subject> subjectRepo = new Repository<>("SUB", 3, "科目");
 
     public static void showSubjectMenu(Scanner scanner ) {
 
@@ -43,15 +39,15 @@ public class SubjectManager {
             return;
         }
         //重复名校验
-        boolean exist = subjectList.stream().anyMatch(s -> s.getName().equalsIgnoreCase(subName));
+        boolean exist = subjectRepo.snapshot().stream().anyMatch(s -> s.getName().equalsIgnoreCase(subName));
 
         if (exist) {
             System.out.println("该科目已存在，结束添加");
             return;
         }
     
-        String subId = setSubjectId(subjectList);
-        subjectList.add(new Subject(subId, subName));
+        String subId = subjectRepo.generateId();
+        subjectRepo.add(new Subject(subId, subName));
         DataStore.saveAll();//更新数据
         System.out.println("------------------------"); 
         System.out.println("添加《" + subName + "》 成功");
@@ -75,73 +71,28 @@ public class SubjectManager {
             return;
         }
 
-        subjectList.remove(subject);
+        subjectRepo.remove(subject);
         ScoreManager.removeScoreBySubject(subject.getId());//绑定删除成绩
         DataStore.saveAll();//更新数据
         System.out.println("已删除科目和其所有成绩： " + subject.getName());
      
     }
 
-    //自动生成科目id
-    public static String setSubjectId(ArrayList<Subject> subjectList){
-        int maxNum = 0;
-        for (Subject sub : subjectList) {
-            String numStr = sub.getId().substring(ID_PREFIX.length());
-            int num = Integer.parseInt(numStr);
-            if(num > maxNum){
-                maxNum = num;
-            }
-        }
-        int newNum = maxNum + 1;
-        if (newNum > (int) Math.pow(10, ID_DIGITS) - 1) {
-            throw new IllegalStateException("科目ID已达到最大值,无法生成新的ID");
-        }
-        return ID_PREFIX + String.format("%0" + ID_DIGITS + "d", newNum);
-    }
-
     //打印全部科目
     public static void listSubject(){
+        List<Subject> subjects = subjectRepo.snapshot();
 
-        if(subjectList.isEmpty()){
+        if(subjects.isEmpty()){
             System.out.println("科目列表为空\n");
             return ;
-
         }
         
         String[] headers = {"科目编号", "科目名称"};
         int[] widths = {10, 14};
-        ToolUtil.printTable("科目列表", headers, widths, subjectList, (s, i) -> new String[]{
+        ToolUtil.printTable("科目列表", headers, widths, subjects, (s, i) -> new String[]{
             s.getId(),
             s.getName()
         });
-    }
-
-    //判断输入是否为科目ID
-    public static boolean isSubjectId(String enterStr){
-
-        if (enterStr == null) return false;
-        String upper = enterStr.toUpperCase();
-
-        return 
-        upper.startsWith(ID_PREFIX)
-        && upper.length() == ID_PREFIX.length() + ID_DIGITS
-        && upper.substring(ID_PREFIX.length()).matches("\\d+"); 
-    }
-
-    //静态方法，通过id找name
-    public static String getName(String subjectId) {
-        Subject sub = findSubjectById(subjectId);
-        return (sub != null) ? sub.getName() : "未知科目";
-    }
-
-    //检查科目是否存在 返回科目对象，包括名称
-    public static Subject findSubjectById(String subjectId ){
-        for (Subject s : subjectList) {
-            if (s.getId().equalsIgnoreCase(subjectId)) {
-                return s;
-            }
-        }
-        return null;
     }
 
     /**
@@ -185,7 +136,7 @@ public class SubjectManager {
             }
         } catch (NumberFormatException e) {
             // 不是数字，当作编号处理
-            Subject sub = findSubjectById(input);
+            Subject sub = subjectRepo.findById(input);
             if (sub == null) {
                 System.out.println("未找到编号为 " + input + " 的科目");
             }
@@ -196,16 +147,21 @@ public class SubjectManager {
     public static String loadSubject(String subId, String subName) {
         subId = ToolUtil.normalizeId(subId);
         if (subId.isEmpty()) return "科目编号为空";
+        if (!subjectRepo.isId(subId)) return "科目编号格式错误"; 
         if (subName.isEmpty()) return "科目名称为空";
-        subjectList.add(new Subject(subId, subName));
+        subjectRepo.add(new Subject(subId, subName));
         return null;
     }
     //只读快照
     public static List<Subject> snapshotSubjects() {
-        return List.copyOf(subjectList); 
+        return subjectRepo.snapshot(); 
     }
     //清空
     public static void clearSubjects() {
-        subjectList.clear();
-    } 
+        subjectRepo.clear();
+    }
+
+    public static String getNameById(String subjectId) {
+        return subjectRepo.getNameById(subjectId);    
+    }
 }

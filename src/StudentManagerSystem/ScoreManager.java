@@ -123,7 +123,7 @@ public class ScoreManager {
             double oldScore = studentScores.get(normSubjectId);
 
             String stuName = StudentManager.getNameById(normStudentId);
-            String subName = SubjectManager.getName(normSubjectId);
+            String subName = SubjectManager.getNameById(normSubjectId);
 
             System.out.printf("该学生已有成绩：%s 的 %s 为 %.1f 分。 %n", stuName, subName, oldScore);
             System.out.print("是否覆盖旧成绩(Y/N): ");
@@ -141,7 +141,7 @@ public class ScoreManager {
 
         //提示添加成功
         String stuName = StudentManager.getNameById(normStudentId);
-        String subName = SubjectManager.getName(normSubjectId);
+        String subName = SubjectManager.getNameById(normSubjectId);
         System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数: " + score);
         return true;
     }
@@ -435,5 +435,3 @@ public class ScoreManager {
     }
      
 }
-
-
