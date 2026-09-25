@@ -43,7 +43,7 @@ public class SubjectManager {
             return;
         }
         //重复名校验
-        boolean exist = subjectList.stream().anyMatch(s -> s.getSubName().equalsIgnoreCase(subName));
+        boolean exist = subjectList.stream().anyMatch(s -> s.getName().equalsIgnoreCase(subName));
 
         if (exist) {
             System.out.println("该科目已存在，结束添加");
@@ -66,7 +66,7 @@ public class SubjectManager {
             return;
         }
 
-        System.out.println("已选择科目：" + subject.getSubName());
+        System.out.println("已选择科目：" + subject.getName());
 
         System.out.print("确认删除该科目以及其所有成绩?(Y/N): ");
         String confirm = ToolUtil.readLine(scanner);
@@ -76,9 +76,9 @@ public class SubjectManager {
         }
 
         subjectList.remove(subject);
-        ScoreManager.removeScoreBySubject(subject.getSubId());//绑定删除成绩
+        ScoreManager.removeScoreBySubject(subject.getId());//绑定删除成绩
         DataStore.saveAll();//更新数据
-        System.out.println("已删除科目和其所有成绩： " + subject.getSubName());
+        System.out.println("已删除科目和其所有成绩： " + subject.getName());
      
     }
 
@@ -86,7 +86,7 @@ public class SubjectManager {
     public static String setSubjectId(ArrayList<Subject> subjectList){
         int maxNum = 0;
         for (Subject sub : subjectList) {
-            String numStr = sub.getSubId().substring(ID_PREFIX.length());
+            String numStr = sub.getId().substring(ID_PREFIX.length());
             int num = Integer.parseInt(numStr);
             if(num > maxNum){
                 maxNum = num;
@@ -111,8 +111,8 @@ public class SubjectManager {
         String[] headers = {"科目编号", "科目名称"};
         int[] widths = {10, 14};
         ToolUtil.printTable("科目列表", headers, widths, subjectList, (s, i) -> new String[]{
-            s.getSubId(),
-            s.getSubName()
+            s.getId(),
+            s.getName()
         });
     }
 
@@ -129,15 +129,15 @@ public class SubjectManager {
     }
 
     //静态方法，通过id找name
-    public static String getSubName(String subjectId) {
+    public static String getName(String subjectId) {
         Subject sub = findSubjectById(subjectId);
-        return (sub != null) ? sub.getSubName() : "未知科目";
+        return (sub != null) ? sub.getName() : "未知科目";
     }
 
     //检查科目是否存在 返回科目对象，包括名称
     public static Subject findSubjectById(String subjectId ){
         for (Subject s : subjectList) {
-            if (s.getSubId().equalsIgnoreCase(subjectId)) {
+            if (s.getId().equalsIgnoreCase(subjectId)) {
                 return s;
             }
         }
@@ -162,8 +162,8 @@ public class SubjectManager {
 
         ToolUtil.printTable("请选择科目", headers, widths, subjects, (s, i) -> new String[]{
             String.valueOf(i + 1),
-            s.getSubId(),
-            s.getSubName()
+            s.getId(),
+            s.getName()
         });
 
         System.out.println("0.返回");

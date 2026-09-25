@@ -44,7 +44,7 @@ public class StudentManager {
             return;
         }
         //重复名校验
-        boolean exist = studentList.stream().anyMatch(s -> s.getStuName().equalsIgnoreCase(stuName));
+        boolean exist = studentList.stream().anyMatch(s -> s.getName().equalsIgnoreCase(stuName));
 
         if (exist) {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -71,7 +71,7 @@ public class StudentManager {
             return;
         }
 
-        System.out.println("已选择学生：" + student.getStuName());
+        System.out.println("已选择学生：" + student.getName());
 
         System.out.print("确认删除该学生以及其所有成绩?(Y/N): ");
         String confirm = ToolUtil.readLine(scanner);
@@ -81,9 +81,9 @@ public class StudentManager {
         }
 
         studentList.remove(student);
-        ScoreManager.removeScoreByStudent(student.getStuId());//绑定删除成绩
+        ScoreManager.removeScoreByStudent(student.getId());//绑定删除成绩
         DataStore.saveAll();//更新数据
-        System.out.println("已删除学生： " + student.getStuName());
+        System.out.println("已删除学生： " + student.getName());
      
     }
 
@@ -91,7 +91,7 @@ public class StudentManager {
     public static String setStudentId(ArrayList<Student> studentList){
         int maxNum = 0;
         for (Student stu : studentList) {
-            String numStr = stu.getStuId().substring(ID_PREFIX.length());
+            String numStr = stu.getId().substring(ID_PREFIX.length());
             int num = Integer.parseInt(numStr);
             if(num > maxNum){
                 maxNum = num;
@@ -115,8 +115,8 @@ public class StudentManager {
         int[] widths = {10, 14, 6};
 
         ToolUtil.printTable("学生列表", headers, widths, studentList, (s, i) -> new String[]{
-            s.getStuId(),
-            s.getStuName(), 
+            s.getId(),
+            s.getName(), 
             String.valueOf(s.getStuAge())
         });    
     }
@@ -135,15 +135,15 @@ public class StudentManager {
     }
 
     //静态方法，通过id找name
-    public static String getStuName(String studentId) {
+    public static String getName(String studentId) {
         Student stu = findStudentById(studentId);
-        return (stu != null) ? stu.getStuName() : "未知学生";
+        return (stu != null) ? stu.getName() : "未知学生";
     }
 
     //检查学生是否存在 返回学生对象，包括姓名
     public static Student findStudentById(String studentId ){
         for (Student s : studentList) {
-            if (s.getStuId().equalsIgnoreCase(studentId)) {
+            if (s.getId().equalsIgnoreCase(studentId)) {
                 return s;
             }
         }
@@ -166,8 +166,8 @@ public class StudentManager {
 
         ToolUtil.printTable("请选择学生", headers, widths, students, (s, i) -> new String[]{
             String.valueOf(i + 1),
-            s.getStuId(),
-            s.getStuName()
+            s.getId(),
+            s.getName()
         });
         
         System.out.println("0.返回");
@@ -194,7 +194,7 @@ public class StudentManager {
                 //学号没找到，再尝试按姓名查
                 List<Student> matched = new ArrayList<>();
                 for (Student s : studentList) {
-                    if (s.getStuName().equalsIgnoreCase(input)) {
+                    if (s.getName().equalsIgnoreCase(input)) {
                         matched.add(s);
                     }
                 }
@@ -205,7 +205,7 @@ public class StudentManager {
                 if (matched.size() >1) {
                     System.out.println("存在多个同名学生，请改用学号选择：");
                     for (Student s : matched) {
-                        System.out.println("  " + s.getStuId() + " - " + s.getStuName());
+                        System.out.println("  " + s.getId() + " - " + s.getName());
                     }
                         return null;
                 }

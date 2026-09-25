@@ -61,7 +61,7 @@ public class ScoreManager {
         if (subject == null) {
             return;
         }
-        System.out.println("已选择科目：" + subject.getSubName());
+        System.out.println("已选择科目：" + subject.getName());
 
         //循环选择学生录入成绩
         while (true) {
@@ -72,7 +72,7 @@ public class ScoreManager {
             }
 
             double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
-            boolean saved = addOrUpdateScore(scanner,student.getStuId(), subject.getSubId(), score);
+            boolean saved = addOrUpdateScore(scanner,student.getId(), subject.getId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
             }
@@ -87,7 +87,7 @@ public class ScoreManager {
         if (student == null) {
             return;
         }
-        System.out.println("已选择学生：" + student.getStuName());
+        System.out.println("已选择学生：" + student.getName());
 
         //循环选择学生录入成绩
         while (true) {
@@ -98,7 +98,7 @@ public class ScoreManager {
             }
 
             double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
-            boolean saved = addOrUpdateScore(scanner,student.getStuId(), subject.getSubId(), score);
+            boolean saved = addOrUpdateScore(scanner,student.getId(), subject.getId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
             }
@@ -122,8 +122,8 @@ public class ScoreManager {
         if (studentScores.containsKey(normSubjectId)) {
             double oldScore = studentScores.get(normSubjectId);
 
-            String stuName = StudentManager.getStuName(normStudentId);
-            String subName = SubjectManager.getSubName(normSubjectId);
+            String stuName = StudentManager.getName(normStudentId);
+            String subName = SubjectManager.getName(normSubjectId);
 
             System.out.printf("该学生已有成绩：%s 的 %s 为 %.1f 分。 %n", stuName, subName, oldScore);
             System.out.print("是否覆盖旧成绩(Y/N): ");
@@ -140,8 +140,8 @@ public class ScoreManager {
         DataStore.saveAll();//更新数据
 
         //提示添加成功
-        String stuName = StudentManager.getStuName(normStudentId);
-        String subName = SubjectManager.getSubName(normSubjectId);
+        String stuName = StudentManager.getName(normStudentId);
+        String subName = SubjectManager.getName(normSubjectId);
         System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数: " + score);
         return true;
     }
@@ -174,12 +174,12 @@ public class ScoreManager {
             System.out.println("已取消查询");
             return;
         }
-        String studentId = student.getStuId();
+        String studentId = student.getId();
 
         //从scoreMap中获取该学生成绩Map并判断是否有成绩记录
         Map<String, Double> studentScores = scoreMap.get(studentId);
         if (studentScores == null || studentScores.isEmpty()) {
-            System.out.println("学生 " + student.getStuName() + " 暂无任何科目成绩");
+            System.out.println("学生 " + student.getName() + " 暂无任何科目成绩");
             return;
         }
         List<Subject> subjects = SubjectManager.snapshotSubjects();
@@ -188,14 +188,14 @@ public class ScoreManager {
             return ;
         }
         //输出该学生的成绩表
-        System.out.println("\n===== " + student.getStuName() + " 的成绩单 =====");
+        System.out.println("\n===== " + student.getName() + " 的成绩单 =====");
         
         double total = 0;
         int validCount = 0;
 
         for (Subject sub : subjects) {
-            String subId = sub.getSubId();
-            String subName = sub.getSubName();
+            String subId = sub.getId();
+            String subName = sub.getName();
 
             if (studentScores != null && studentScores.containsKey(subId)) {
                 double score = studentScores.get(subId);
@@ -223,7 +223,7 @@ public class ScoreManager {
             System.out.println("已取消查询");
             return;  
         }
-        String subjectId = subject.getSubId();
+        String subjectId = subject.getId();
         //收集该科目所有成绩
         List<Map.Entry<String, Double>> ranking = new ArrayList<>();
 
@@ -246,7 +246,7 @@ public class ScoreManager {
         ranking.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
         //输出排名
-        System.out.println("\n===== " + subject.getSubName() + " 成绩排名 =====");
+        System.out.println("\n===== " + subject.getName() + " 成绩排名 =====");
         int rank = 0;
         int count = 0;
         double lastScore = -1;
@@ -261,7 +261,7 @@ public class ScoreManager {
                 lastScore = score;
             }
 
-            String name = ToolUtil.truncate(StudentManager.getStuName(studentId), 12);
+            String name = ToolUtil.truncate(StudentManager.getName(studentId), 12);
             System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);    
         }
     }
@@ -314,7 +314,7 @@ public class ScoreManager {
         headers[2] = "姓名"; widths[2] = 14;
         //科目列 动态
         for (int i = 0; i < subCount; i++) {
-            headers[3 + i] = subjects.get(i).getSubName();
+            headers[3 + i] = subjects.get(i).getName();
             widths[3 + i] = 12;
         }
         //最后两列 总分 平均分
@@ -325,8 +325,8 @@ public class ScoreManager {
 
         for (Student stu : students) {
             StudentRow row = new StudentRow();
-            row.studentId = stu.getStuId();
-            row.name = stu.getStuName();
+            row.studentId = stu.getId();
+            row.name = stu.getName();
             row.scores = new double[subCount];
 
             Map<String, Double> stuScores = scoreMap.get(row.studentId);
@@ -334,7 +334,7 @@ public class ScoreManager {
             int validCount = 0;
 
             for (int i = 0; i < subCount; i++) {
-                String subId = subjects.get(i).getSubId();
+                String subId = subjects.get(i).getId();
                 if (stuScores != null && stuScores.containsKey(subId)) {
                     double s = stuScores.get(subId);
                     row.scores[i] = s;
@@ -401,9 +401,9 @@ public class ScoreManager {
             for (Subject sub : subjects) {
                 // 随机分数 40~100 的整数
                 double score = 40 + random.nextInt(61);  // nextInt(61) 返回 0~60
-                stuScores.put(sub.getSubId(), score);
+                stuScores.put(sub.getId(), score);
             }
-            scoreMap.put(stu.getStuId(), stuScores);
+            scoreMap.put(stu.getId(), stuScores);
         }
         System.out.println("随机成绩初始化完成。");
     }

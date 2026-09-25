@@ -35,7 +35,7 @@ public class DataStore {
     private static void saveStudents() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(STUDENT_FILE),"UTF-8"))){
             for (Student s : StudentManager.snapshotStudents()) {
-                bw.write(s.getStuId() + "|" + s.getStuName() + "|" + s.getStuAge());
+                bw.write(s.getId() + "|" + s.getName() + "|" + s.getStuAge());
                 bw.newLine();
             }            
         } catch (IOException e) {
@@ -46,7 +46,7 @@ public class DataStore {
     private static void saveSubjects() {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SUBJECT_FILE),"UTF-8"))){
             for (Subject s : SubjectManager.snapshotSubjects()) {
-                bw.write(s.getSubId() + "|" + s.getSubName());
+                bw.write(s.getId() + "|" + s.getName());
                 bw.newLine();
             }            
         } catch (IOException e) {

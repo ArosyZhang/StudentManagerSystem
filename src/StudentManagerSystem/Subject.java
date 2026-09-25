@@ -1,6 +1,6 @@
 package StudentManagerSystem;
 
-public class Subject {
+public class Subject implements Entity {
     private final String subId;
     private final String subName;
 
@@ -14,12 +14,10 @@ public class Subject {
         return "科目编号: " + subId + " 科目名称: " + subName;    
     }
 
-    public String getSubId() { 
+    public String getId() { 
         return subId; 
     }
-
-    public String getSubName(){
+    public String getName(){
         return subName;
     }
-
 }

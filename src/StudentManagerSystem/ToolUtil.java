@@ -65,7 +65,7 @@ public class ToolUtil {
         int w = 0;
         for (char c : s.toCharArray()) {
             int cw = isFullWidth(c) ? 2 : 1;
-            if (w + cw > maxWidth - 3) break;
+            if (w + cw > maxWidth - 4) break;
             sb.append(c);
             w += cw;            
         }
