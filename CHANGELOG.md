@@ -39,4 +39,4 @@
 - 为全部 10 个类补齐中文 Javadoc（类头职责与边界、公开 API 的契约、反直觉行为与使用约束）
 - 重写 README，补充功能说明、运行效果、数据文件格式、项目结构与设计说明
 
-[1.0.0]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0
+[1.0.0]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0.0
