@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -45,39 +47,38 @@ public class DataStore {
     }
 
     private void saveStudents() {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(STUDENT_FILE),"UTF-8"))){
-            for (Student s : studentManager.snapshotStudents()) {
-                bw.write(s.getId() + "|" + s.getName() + "|" + s.getStuAge());
-                bw.newLine();
-            }            
-        } catch (IOException e) {
-            System.out.println("保存学生数据失败：" + e.getMessage());
-        }
+        saveFile(STUDENT_FILE, "学生", studentManager.snapshotStudents(), s -> s.getId() + "|" + s.getName() + "|" + s.getStuAge());
     }
 
     private void saveSubjects() {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SUBJECT_FILE),"UTF-8"))){
-            for (Subject s : subjectManager.snapshotSubjects()) {
-                bw.write(s.getId() + "|" + s.getName());
-                bw.newLine();
-            }            
-        } catch (IOException e) {
-            System.out.println("保存科目数据失败：" + e.getMessage());
-        }
+        saveFile(SUBJECT_FILE, "科目", subjectManager.snapshotSubjects(), s -> s.getId() + "|" + s.getName());
     }
 
     private void saveScores() {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(SCORE_FILE),"UTF-8"))){
-            for (Map.Entry<String, Map<String, Double>> outer : scoreManager.snapshotScores().entrySet()) {
-                String studentId = outer.getKey();
-                for (Map.Entry<String, Double> inner : outer.getValue().entrySet()) {
-                    bw.write(studentId + "|" + inner.getKey() + "|" + inner.getValue());
-                    bw.newLine();    
-                }    
+        saveFile(SCORE_FILE, "成绩", flattenScores(), line -> line);
+    }
+
+    //把一个列表逐行写入文件；toLine 负责把一条数据变成一行文本\
+    private <T> void saveFile(String filePath, String label, List<T> items, Function<T, String> toLine) {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8"))) {
+            for (T item : items) {
+                bw.write(toLine.apply(item));
+                bw.newLine();
             }
         } catch (IOException e) {
-            System.out.println("保存成绩数据失败：" + e.getMessage());
+            System.out.println("保存" + label + "数据失败：" + e.getMessage());
         }
+    }
+
+    //把"学号 -> (科目号 -> 分数)"的嵌套 Map 摊平成 "学号|科目号|分数" 的字符串列表
+    private List<String> flattenScores() {
+        List<String> lines = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Double>> outer : scoreManager.snapshotScores().entrySet()) {
+            for (Map.Entry<String, Double> inner : outer.getValue().entrySet()) {
+                lines.add(outer.getKey() + "|" + inner.getKey() + "|" + inner.getValue());
+            }
+        }
+        return lines;
     }
 
     //=====读取=====
@@ -102,7 +103,7 @@ public class DataStore {
         scoreManager.clearScores();
         loadFile(SCORE_FILE, "成绩", 3, parts -> scoreManager.loadScore(parts[0].trim(), parts[1].trim(), parts[2].trim()));
     }
-    
+
     //读取一个数据文件：字段不足、内容非法都跳过并提示，最后汇总跳过行数
     private void loadFile(String filePath, String label, int minFields, Function<String[], String> rowLoader) {
         File file = new File(filePath);
@@ -130,7 +131,7 @@ public class DataStore {
                 System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
             } 
         } catch (IOException e) {
-             System.out.println("读取" + label + "数据失败：" + e.getMessage());
+            System.out.println("读取" + label + "数据失败：" + e.getMessage());
         }
     }
 }
