@@ -1,6 +1,7 @@
 package StudentManagerSystem;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Function;
 
 public class ToolUtil {
     //计算字符串的显示宽度（中文算2，英文算1）
@@ -196,5 +197,47 @@ public class ToolUtil {
         }
     }
 
-    
+    /**
+     * 让用户从一个列表里选择一个对象
+     * 可以输入序号选择，也可以输入唯一编号或者名称选择；输入0表示放弃选择
+     * @return 选中的对象；取消选择或没找到返回null
+     */
+    public static <T extends Entity> T chooseFromList(Scanner scanner, String label, String idLabel, String nameLabel,List<T> items, Function<String, T> idLookup, Function<String, T> nameLookup) {
+        if (items.isEmpty()) {
+            System.out.println("暂无" + label + "，请先在" + label + "管理中添加");
+            return null;
+        }
+
+        String[] headers = {"序号", idLabel, nameLabel};
+        int[] widths = {6, 10, 14};
+        printTable("请选择"+ label, headers, widths, items, (item, i) -> new String[]{String.valueOf(i + 1), item.getId(), item.getName()});
+
+        System.out.println("0.返回");
+        System.out.print("请输入序号或者" + idLabel + ": ");
+
+        String input = readLine(scanner);
+        if (input.equals("0")) {
+            return null;
+        }
+
+        //先按序号解析
+        try {
+            int idx = Integer.parseInt(input);
+            if (idx >= 1 && idx <= items.size()) {
+                return items.get(idx - 1);
+            }
+            System.out.println("序号超出范围");
+            return null;
+        } catch (NumberFormatException e) {
+            //不是数字，先按编号查找，再按名称查
+            T item = idLookup.apply(input);
+            if (item == null && nameLookup != null) {
+                item = nameLookup.apply(input);
+            }
+            if (item == null) {
+                System.out.println("未找到" + idLabel + "或" + nameLabel + "为 " + input + " 的" + label);
+            }
+            return item;
+        }
+    }
 }

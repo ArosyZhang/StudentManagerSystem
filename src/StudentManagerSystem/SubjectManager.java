@@ -55,7 +55,6 @@ public class SubjectManager {
 
     //删除科目，包括同名删除，确认删除，选择序号删除
     public Subject deleteSubject(Scanner scanner) {
-        System.out.println("请选择要删除科目的序号、名称或编号之一: ");
         Subject subject = chooseSubject(scanner);
         if (subject == null) {
             System.out.println("已取消删除");
@@ -93,54 +92,22 @@ public class SubjectManager {
         });
     }
 
-    /**
-     * 让用户选择科目
-     * 用户可以输入序号（1.2.3...）选择，也可以输入精确编号来选择
-     * 输入0表示放弃选择
-     * @return 选中的对象；如果用户取消或选择无效 返回null
-     */
+    //让用户选择一个科目
     public Subject chooseSubject(Scanner scanner) {
-        List<Subject> subjects = snapshotSubjects();
-        if (subjects.isEmpty()) {
-            System.out.println("暂无科目，请先在科目管理中添加");
-            return null;
-        }
-
-        String[] headers = {"序号", "科目编号", "科目名称"};
-        int[] widths = {6, 10, 14};
-
-        ToolUtil.printTable("请选择科目", headers, widths, subjects, (s, i) -> new String[]{
-            String.valueOf(i + 1),
-            s.getId(),
-            s.getName()
-        });
-
-        System.out.println("0.返回");
-        System.out.print("请输入序号或者科目编号：");
-
-        String input = ToolUtil.readLine(scanner);
-        if (input.equals("0")) {
-            return null;
-        }
-
-        //先尝试解析序号解析
-        try {
-            int idx = Integer.parseInt(input);
-            if (idx >= 1 && idx <= subjects.size()) {
-                return subjects.get(idx - 1);
-            } else {
-                System.out.println("序号超出范围");
-                return null;
-            }
-        } catch (NumberFormatException e) {
-            // 不是数字，当作编号处理
-            Subject sub = subjectRepo.findById(input);
-            if (sub == null) {
-                System.out.println("未找到编号为 " + input + " 的科目");
-            }
-            return sub;
-        }
+        return ToolUtil.chooseFromList(scanner, "科目", "科目编号", "科目名称",
+            subjectRepo.snapshot(), subjectRepo::findById, this::findByName);
     }
+
+    //按科目名查找
+    private Subject findByName(String name) {
+        for (Subject s : subjectRepo.snapshot()) {
+            if (s.getName().equalsIgnoreCase(name)) {
+                return s;
+            }
+        }
+        return null;
+    }
+
     //从文件加载一条科目数据。成功返回 null，失败返回原因
     public String loadSubject(String subId, String subName) {
         subId = ToolUtil.normalizeId(subId);
@@ -160,6 +127,6 @@ public class SubjectManager {
     }
 
     public String getNameById(String subjectId) {
-        return subjectRepo.getNameById(subjectId);    
+        return subjectRepo.getNameById(subjectId);
     }
 }

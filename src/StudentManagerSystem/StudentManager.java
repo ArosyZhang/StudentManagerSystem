@@ -67,7 +67,6 @@ public class StudentManager {
 
     //删除学生，包括同名删除，确认删除，支持通过姓名，学号，选择序号删除
     public Student deleteStudent(Scanner scanner) {
-        System.out.println("请选择要删除学生的序号、姓名或学号之一: ");
         Student student = chooseStudent(scanner);
         if (student == null) {
             System.out.println("已取消删除");
@@ -106,71 +105,33 @@ public class StudentManager {
         });    
     }
 
-    /**
-     * 让用户选择学生
-     * 用户可以输入序号（1.2.3...）选择，也可以输入精确编号来选择
-     * 输入0表示放弃选择
-     * @return 选中的对象；如果用户取消或选择无效 返回null
-     */
+    //让学生选择一个学生
     public Student chooseStudent(Scanner scanner) {
-        List<Student> students = studentRepo.snapshot();
-        if (students.isEmpty()) {
-            System.out.println("暂无学生，请先在学生管理中添加");
-            return null;
-        }
-        String[] headers = {"序号", "学号", "姓名"};
-        int[] widths = {6, 10, 14};
-
-        ToolUtil.printTable("请选择学生", headers, widths, students, (s, i) -> new String[]{
-            String.valueOf(i + 1),
-            s.getId(),
-            s.getName()
-        });
-        
-        System.out.println("0.返回");
-        System.out.print("请输入序号或者学号：");
-
-        String input = ToolUtil.readLine(scanner);
-        if (input.equals("0")) {
-            return null;
-        }
-        //先尝试解析序号解析
-        try {
-            int idx = Integer.parseInt(input);
-            if (idx >= 1 && idx <= students.size()) {
-                return students.get(idx - 1);
-            } else {
-                System.out.println("序号超出范围");
-                return null;
-            }
-        } catch (NumberFormatException e) {
-            // 不是数字，先当学号查
-            Student stu = studentRepo.findById(input);
-
-            if (stu == null) {
-                //学号没找到，再尝试按姓名查
-                List<Student> matched = new ArrayList<>();
-                for (Student s : students) {
-                    if (s.getName().equalsIgnoreCase(input)) {
-                        matched.add(s);
-                    }
-                }
-                if (matched.isEmpty()) {
-                    System.out.println("未找到学号或姓名为 " + input + " 的学生");
-                    return null;
-                }
-                if (matched.size() > 1) {
-                    System.out.println("存在多个同名学生，请改用学号选择：");
-                    for (Student s : matched) {
-                        System.out.println("  " + s.getId() + " - " + s.getName());
-                    }
-                    return null;
-                }
-                stu = matched.get(0);
-            }
-            return stu;
-        }      
+        return ToolUtil.chooseFromList(scanner, "学生", "学号", "姓名",
+            studentRepo.snapshot(), studentRepo::findById, this::findByName);    
     }
+
+    //按姓名查找学生；存在同名时打印列表并返回null
+    private Student findByName(String name) {
+        List<Student> matched = new ArrayList<>();
+        for (Student s : studentRepo.snapshot()) {
+            if (s.getName().equalsIgnoreCase(name)) {
+                matched.add(s);
+            }
+        }
+        if (matched.isEmpty()) {
+            return null;
+        }
+        if (matched.size() > 1) {
+            System.out.println("存在多个同名学生，请改用学号选择：");
+            for (Student s : matched) {
+                System.out.println("  " + s.getId() + " - " + s.getName());
+            }
+            return null;
+        }
+        return matched.get(0);
+    }
+
     //从文件加载一条学生数据。成功返回 null，失败返回原因
     public String loadStudent(String stuId, String stuName, String stuAgeText) {
         stuId = ToolUtil.normalizeId(stuId);
