@@ -51,12 +51,10 @@ public class ScoreManager {
             int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 2);
 
             switch (choiceNumber){
-                
                 case 1 -> enterBySubject(scanner);
                 case 2 -> enterByStudent(scanner);
                 case 0 -> { return; }
                 default -> System.out.println("输入有误，请重新输入");
-
             }  
         }
     }
@@ -78,7 +76,6 @@ public class ScoreManager {
                 System.out.println("结束录入，返回上级菜单");
                 break;
             }
-
             double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
             boolean saved = addOrUpdateScore(scanner,student.getId(), subject.getId(), score);
             if (!saved) {
@@ -89,7 +86,6 @@ public class ScoreManager {
 
     //按学生录入：先选择一个学生，然后为该学生的多个科目录入成绩
     private void enterByStudent(Scanner scanner) {
-        
         //1.选择学生
         Student student = studentManager.chooseStudent(scanner);
         if (student == null) {
@@ -104,7 +100,6 @@ public class ScoreManager {
                 System.out.println("结束录入，返回上级菜单");
                 break;
             }
-
             double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
             boolean saved = addOrUpdateScore(scanner,student.getId(), subject.getId(), score);
             if (!saved) {
@@ -142,7 +137,6 @@ public class ScoreManager {
                 return false;
             }         
         }
-
         //"科目编号"、"覆盖旧分数"
         studentScores.put(normSubjectId,score);
 
@@ -156,7 +150,6 @@ public class ScoreManager {
     //--- 成绩查询与统计 ---
     public void queryMenu(Scanner scanner) {
         while (true) {
-
             System.out.println("\n=== 成绩查询 ===");
             System.out.println("1. 查询学生各科成绩");
             System.out.println("2. 单科目成绩排名");
@@ -242,13 +235,11 @@ public class ScoreManager {
                 ranking.add(new AbstractMap.SimpleEntry<>(studentId, studentScores.get(normSubjectId)));
             }
         }
-
         //检查该科目是否有成绩
         if (ranking.isEmpty()) {
             System.out.println("该科目暂无成绩记录");
             return;
         }
-
         //降序排列成绩
         ranking.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
@@ -267,7 +258,6 @@ public class ScoreManager {
                 rank = count;
                 lastScore = score;
             }
-
             String name = ToolUtil.truncate(studentManager.getNameById(studentId), 12);
             System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);    
         }
@@ -287,7 +277,7 @@ public class ScoreManager {
     }
 
     //临时数据类
-    static class StudentRow {
+    private static class StudentRow {
         String studentId;
         String name;
         double[] scores; //按科目顺序存放分数，没有用 -1 表示
@@ -297,7 +287,7 @@ public class ScoreManager {
     }
 
     public void showAllScoresTable() {
-        //1.获取所有科目
+        //获取所有科目
         List<Subject> subjects = subjectManager.snapshotSubjects();
         List<Student> students = studentManager.snapshotStudents();
 
@@ -396,40 +386,11 @@ public class ScoreManager {
                     row.scores[i] = -1; //-1表示没有成绩
                 }
             }
-
             row.total = total;
             row.average = validCount > 0 ? total / validCount : 0;
             rows.add(row);
         }
         return rows;
-    }
-    
-    //初始化成绩（测试）
-    public void initRandomScores() {
-        if (!scoreMap.isEmpty()) return;  // 避免重复初始化
-        Random random = new Random();
-
-        // 获取学生和科目列表
-        List<Student> students = studentManager.snapshotStudents();
-        List<Subject> subjects = subjectManager.snapshotSubjects();
-
-        if (students.isEmpty() || subjects.isEmpty()) {
-
-            System.out.println("学生或科目为空，无法初始化成绩。");
-            return;
-        }
-        for (Student stu : students) {
-
-            // 为每个学生创建一个内层 Map
-            Map<String, Double> stuScores = new HashMap<>();
-            for (Subject sub : subjects) {
-                // 随机分数 40~100 的整数
-                double score = 40 + random.nextInt(61);  // nextInt(61) 返回 0~60
-                stuScores.put(sub.getId(), score);
-            }
-            scoreMap.put(stu.getId(), stuScores);
-        }
-        System.out.println("随机成绩初始化完成。");
     }
 
     //从文件加载一条成绩数据。成功返回 null，失败返回原因
@@ -456,6 +417,5 @@ public class ScoreManager {
     //清空
     public void clearScores() {
         scoreMap.clear();
-    }
-     
+    }  
 }

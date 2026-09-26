@@ -72,7 +72,6 @@ public class StudentManager {
             System.out.println("已取消删除");
             return null;
         }
-
         System.out.println("已选择学生：" + student.getName());
 
         System.out.print("确认删除该学生以及其所有成绩?(Y/N): ");
@@ -81,7 +80,6 @@ public class StudentManager {
             System.out.println("已取消删除");
             return null;
         }
-
         studentRepo.remove(student);
         System.out.println("已删除学生： " + student.getName());
         return student;
@@ -94,7 +92,6 @@ public class StudentManager {
             System.out.println("学生列表为空"); 
             return;        
         }
-
         String[] headers = {"学号", "姓名", "年龄"};
         int[] widths = {10, 14, 6};
 

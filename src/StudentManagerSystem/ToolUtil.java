@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 public class ToolUtil {
     //计算字符串的显示宽度（中文算2，英文算1）
-    public static int displayWidth(String s) {
+    private static int displayWidth(String s) {
         if (s == null) return 0;
         int w = 0;
         for (char c : s.toCharArray()) {

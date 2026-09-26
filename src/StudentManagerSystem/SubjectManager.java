@@ -5,11 +5,9 @@ import java.util.function.Consumer;
 
 public class SubjectManager {
 
-    //常量，消除魔法值
     private final Repository<Subject> subjectRepo = new Repository<>("SUB", 3, "科目");
 
     public void showSubjectMenu(Scanner scanner, Consumer<String> onSunjectDeleted) {
-
         while (true) {
             System.out.println("\n===== 科目管理菜单 =====");
             System.out.println("1.添加新科目");
@@ -46,7 +44,6 @@ public class SubjectManager {
             System.out.println("该科目已存在，结束添加");
             return;
         }
-    
         String subId = subjectRepo.generateId();
         subjectRepo.add(new Subject(subId, subName));
         System.out.println("------------------------"); 
@@ -60,7 +57,6 @@ public class SubjectManager {
             System.out.println("已取消删除");
             return null;
         }
-
         System.out.println("已选择科目：" + subject.getName());
 
         System.out.print("确认删除该科目以及其所有成绩?(Y/N): ");
@@ -69,7 +65,6 @@ public class SubjectManager {
             System.out.println("已取消删除");
             return null;
         }
-
         subjectRepo.remove(subject);
         System.out.println("已删除科目和其所有成绩： " + subject.getName());
         return subject;
@@ -83,7 +78,6 @@ public class SubjectManager {
             System.out.println("科目列表为空\n");
             return ;
         }
-        
         String[] headers = {"科目编号", "科目名称"};
         int[] widths = {10, 14};
         ToolUtil.printTable("科目列表", headers, widths, subjects, (s, i) -> new String[]{
