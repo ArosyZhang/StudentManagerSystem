@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Map;
+import java.util.function.Function;
 
 public class DataStore {
     private static final String DATA_DIR = System.getProperty("user.dir") + "/data";
@@ -89,97 +90,47 @@ public class DataStore {
 
     private void loadStudents() {
         studentManager.clearStudents();
-        File file= new File(STUDENT_FILE);
-        if (!file.exists()) return ;
-        int lineNo = 0;
-        int skipped = 0;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
-            String line;
-            while ((line = br.readLine()) != null) {
-                lineNo++;
-                if (line.trim().isEmpty()) continue;    
-                String[] parts = line.split("\\|", -1);
-
-                if (parts.length < 3) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
-                    skipped++;
-                    continue;
-                }
-                String reason = studentManager.loadStudent(parts[0].trim(), parts[1].trim(), parts[2].trim());
-                if (reason != null) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
-                    skipped++;
-                }
-            }
-            if (skipped > 0) {
-                System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
-            }   
-        } catch (IOException e) {
-            System.out.println("读取学生数据失败：" + e.getMessage());
-        }
+        loadFile(STUDENT_FILE, "学生", 3, parts -> studentManager.loadStudent(parts[0].trim(), parts[1].trim(), parts[2].trim()));
     }
 
     private void loadSubjects() {
         subjectManager.clearSubjects();
-        File file= new File(SUBJECT_FILE);
-        if (!file.exists()) return ;
-        int lineNo = 0;
-        int skipped = 0;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
-            String line;
-            while ((line = br.readLine()) != null) {
-                lineNo++;
-                if (line.trim().isEmpty()) continue;                    
-                String[] parts = line.split("\\|", -1);
-                
-                if (parts.length < 2) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
-                    skipped++;
-                    continue;
-                }  
-                String reason = subjectManager.loadSubject(parts[0].trim(), parts[1].trim());
-                if (reason != null) {
-                    System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
-                    skipped++;
-                }
-            }
-            if (skipped > 0) {
-                System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
-            }   
-        } catch (IOException e) {
-            System.out.println("读取科目数据失败：" + e.getMessage());
-        }
+        loadFile(SUBJECT_FILE, "科目", 2, parts -> subjectManager.loadSubject(parts[0].trim(), parts[1].trim()));
     }
 
     private void loadScores() {
         scoreManager.clearScores();
-        File file = new File(SCORE_FILE);
+        loadFile(SCORE_FILE, "成绩", 3, parts -> scoreManager.loadScore(parts[0].trim(), parts[1].trim(), parts[2].trim()));
+    }
+    
+    //读取一个数据文件：字段不足、内容非法都跳过并提示，最后汇总跳过行数
+    private void loadFile(String filePath, String label, int minFields, Function<String[], String> rowLoader) {
+        File file = new File(filePath);
         if (!file.exists()) return;
         int lineNo = 0;
         int skipped = 0;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 lineNo++;
-                if (line.trim().isEmpty()) continue; 
+                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split("\\|", -1);
-
-                if (parts.length < 3) {
+                if (parts.length < minFields) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行字段不足，已跳过：" + line);
                     skipped++;
                     continue;
                 }
-                String reason = scoreManager.loadScore(parts[0].trim(), parts[1].trim(), parts[2].trim());
+                String reason = rowLoader.apply(parts);
                 if (reason != null) {
                     System.out.println(file.getName() + " 第 " + lineNo + " 行" + reason + "，已跳过：" + line);
                     skipped++;
-                }                
+                }
             }
             if (skipped > 0) {
                 System.out.println(file.getName() + " 共跳过 " + skipped + " 行无效数据");
-            }        
+            } 
         } catch (IOException e) {
-            System.out.println("读取成绩数据失败：" + e.getMessage());
+             System.out.println("读取" + label + "数据失败：" + e.getMessage());
         }
     }
 }

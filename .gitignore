@@ -5,3 +5,5 @@ myjre/
 *.class
 .vscode/
 test/
+before.txt
+after.txt
