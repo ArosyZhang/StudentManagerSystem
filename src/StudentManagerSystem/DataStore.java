@@ -99,6 +99,9 @@ public class DataStore {
                 lines.add(outer.getKey() + "|" + inner.getKey() + "|" + inner.getValue());
             }
         }
+        //按 "学号|科目号" 排序，让保存出来的文件顺序固定。学号和科目号都是定长补零的，
+        //所以字典序就是数字序，直接比字符串即可。不排序的话顺序由 HashMap 决定，每次保存都可能变
+        lines.sort(null);
         return lines;
     }
 

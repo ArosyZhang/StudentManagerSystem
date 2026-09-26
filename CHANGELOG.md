@@ -12,10 +12,13 @@
 - **`package-green.bat`** 与 `packaging/`：一键打包免安装的绿色版压缩包 —— 用 `jlink` 生成只含 `java.base` 模块的精简 JRE（约 27 MB），连同 jar、演示数据和启动脚本一起打包
 - Release 页面提供 Windows 绿色版，解压后双击 `启动.bat` 即可运行，**使用者不需要安装 Java**
 
+### 修复
+
+- `data/scores.txt` 写回时按学号、科目号排序，不再因为内部 `HashMap` 的遍历顺序而每次保存都变动行序
+
 ### 文档
 
 - README 补充三种运行方式对照表与绿色版说明，目录树同步更新
-- README「已知限制」新增：`data/scores.txt` 保存后的行序不固定（内部用 `HashMap` 存成绩，每次退出顺序可能变化）
 
 ## [1.0.0] - 2026-09-27
 
