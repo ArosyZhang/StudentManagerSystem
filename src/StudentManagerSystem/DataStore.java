@@ -1,5 +1,4 @@
 package StudentManagerSystem;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * 数据文件保存和读取：确定数据文件生成位置，保存按照指定字符分割数据，读取同样逻辑;
+ *
+ * <p>仅管理文件的生成和读取，数据修改依赖对应的实体管理类
+ *
+ * @author ArosyZhang
+ * @since 1.0
+ */
 public class DataStore {
     private static final String DATA_DIR = System.getProperty("user.dir") + "/data";
     private static final String STUDENT_FILE = DATA_DIR + "/students.txt";
@@ -23,10 +30,21 @@ public class DataStore {
     private final SubjectManager subjectManager;
     private final ScoreManager scoreManager;
 
+
+    /**
+     * 脏数据暂存区，加载时收集，不做删除，保存时原样写入。留给用户手动修复的机会
+     */
     private final List<String> skippedStudentLines = new ArrayList<>();
     private final List<String> skippedSubjectLines = new ArrayList<>();
     private final List<String> skippedScoreLines = new ArrayList<>();
 
+    /**
+     * 构造生成三个类的数据页
+     *
+     * @param studentManager    学生数据
+     * @param subjectManager    科目数据
+     * @param scoreManager      成绩数据
+     */
     public DataStore(StudentManager studentManager, SubjectManager subjectManager, ScoreManager scoreManager) {
         this.studentManager = studentManager;
         this.subjectManager = subjectManager;
@@ -43,6 +61,15 @@ public class DataStore {
     }
 
     //=====保存=====
+    /**
+     * 调用时把当前内存里这三个集合的所有数据写回对应的三个文件
+     * 只在用户改完数据后调用
+     *
+     * <p><b>全量覆盖</b>：整个文件被重写，不是增量追加。因此内存里没有的数据，
+     * 在文件里也会消失 —— 这也是 {@link #loadAll()} 收集无效行、再原样写回的原因。
+     * <p><b>绝不能</b>在 {@link #loadAll()} 里调用本方法，否则加载完立刻把文件重写一遍。
+     *
+     */
     public void saveAll() {
         ensureDir();
         saveStudents();
@@ -92,6 +119,14 @@ public class DataStore {
     }
 
     //=====读取=====
+
+    /**
+     * 依次读取三个文件，填入对应的三个Manager
+     * 每次读取前先清理数据防止二次加载
+     *
+     * <p>只读不写：本方法自身不落盘。但加载过程中跳过的无效行会被暂存，
+     * 等 {@link #saveAll()} 时原样写回，不会因为"加载时跳过"就被删掉。
+     */
     public void loadAll() {
         ensureDir();
         loadStudents();

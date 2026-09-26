@@ -142,7 +142,7 @@ public class ScoreManager {
         //提示添加成功
         String stuName = studentManager.getNameById(normStudentId);
         String subName = subjectManager.getNameById(normSubjectId);
-        System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数: " + score);
+        System.out.println("已保存：学生：" + stuName + " 科目：" + subName + " 分数：" + score);
         return true;
     }
 
@@ -210,7 +210,7 @@ public class ScoreManager {
             System.out.println("该学生暂无任何成绩");
         } else {
             System.out.printf("总分： %.1f%n", total);
-            System.out.printf("平均分：%.2f (按 %d 门 有成绩的科目计算) %n", total / validCount,validCount);
+            System.out.printf("平均分：%.2f (按 %d 门有成绩的科目计算) %n", total / validCount,validCount);
         }
     }
 

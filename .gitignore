@@ -11,3 +11,4 @@ after.txt
 *.iml
 .DS_Store
 Thumbs.db
+docs/

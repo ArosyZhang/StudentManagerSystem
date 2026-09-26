@@ -20,7 +20,7 @@ public class StudentManager {
             System.out.println("3. 全部学生");
             System.out.println("0. 返回主菜单");
             System.out.println("------------------------");
-            int studentManagerChoice = ToolUtil.readInt(scanner, "请选择对应的数字：", 0 , 3);
+            int studentManagerChoice = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0 , 3);
 
             switch (studentManagerChoice) {
                 case 1 -> addStudent(scanner);
