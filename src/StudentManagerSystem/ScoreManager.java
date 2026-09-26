@@ -295,39 +295,84 @@ public class ScoreManager {
         double average; 
         int rank; //名次  
     }
+
     public void showAllScoresTable() {
         //1.获取所有科目
         List<Subject> subjects = subjectManager.snapshotSubjects();
         List<Student> students = studentManager.snapshotStudents();
 
-        if (students.isEmpty()) {
-            System.out.println("暂无学生数据");
-            return;
-        }
-        if (subjects.isEmpty()) {
-            System.out.println("暂无科目数据");
-            return;
-        }
+        if (students.isEmpty()) { System.out.println("暂无学生数据"); return;}
+        if (subjects.isEmpty()) { System.out.println("暂无科目数据"); return;}
 
+        List<StudentRow> rows = buildRows(students, subjects);
+        assignRanks(rows);
+
+        ToolUtil.printTable("全体学生成绩表", buildHeaders(subjects), buildWidths(subjects), rows, (row, idx) -> renderRow(row, subjects.size()));
+    }
+
+    // 表头：名次/学号/姓名 + 每个科目一列 + 总分/平均分
+    private String[] buildHeaders(List<Subject> subjects) {
         int subCount = subjects.size();
-        int totalCols = 3 + subCount + 2; //名次+学号+姓名+科目...+总分+平均分
-
-        String[] headers = new String[totalCols];
-        int[] widths = new int[totalCols];
-
-        //左边固定的三列
-        headers[0] = "名次"; widths[0] = 6;
-        headers[1] = "学号"; widths[1] = 10;
-        headers[2] = "姓名"; widths[2] = 14;
-        //科目列 动态
+        String[] headers = new String[3 + subCount + 2];
+        headers[0] = "名次";
+        headers[1] = "学号";
+        headers[2] = "姓名";
         for (int i = 0; i < subCount; i++) {
             headers[3 + i] = subjects.get(i).getName();
+        }
+        headers[3 + subCount] = "总分";
+        headers[4 + subCount] = "平均分";
+        return headers;
+    }
+
+    // 列宽，与 buildHeaders 一一对应 —— 想调宽度只改这里 
+    private int[] buildWidths(List<Subject> subjects) {
+        int subCount = subjects.size();
+        int[] widths = new int[3 + subCount + 2];
+        widths[0] = 6;
+        widths[1] = 10;
+        widths[2] = 14;
+        for (int i = 0; i < subCount; i++) {
             widths[3 + i] = 12;
         }
-        //最后两列 总分 平均分
-        headers[3 + subCount] = "总分"; widths[3 + subCount] = 10;
-        headers[4 + subCount] = "平均分"; widths[4 + subCount] = 10;
+        widths[3 + subCount] = 10;
+        widths[4 + subCount] = 10;
+        return widths;
+    }
 
+    private String[] renderRow(StudentRow row, int subCount) {
+        String[] cells = new String[3 + subCount + 2];
+             
+        cells[0] = String.valueOf(row.rank);
+        cells[1] = row.studentId;
+        cells[2] = row.name;
+
+        for (int i = 0; i < subCount; i++) {
+            // scores[i] == -1 表示这门课没成绩（约定见 buildRows）
+            cells[3 + i] = (row.scores[i] < 0) ? "-" : String.format("%.1f", row.scores[i]);
+        }
+        cells[3 + subCount] = String.format("%.1f", row.total);
+        cells[4 + subCount] = String.format("%.2f", row.average);
+
+        return cells;
+    }
+
+    //按总分降序排名；总分差值小于 SCORE_EPSILON 的算并列
+    private void assignRanks(List<StudentRow> rows) {
+        rows.sort((a, b) -> Double.compare(b.total, a.total));
+
+        for (int i = 0; i < rows.size(); i++) {
+            StudentRow row = rows.get(i);
+            if (i == 0 || Math.abs(row.total - rows.get(i - 1).total) > SCORE_EPSILON) {
+                row.rank = i + 1;
+            } else {
+                row.rank = rows.get(i - 1).rank;
+            }
+        }
+    }
+
+    private List<StudentRow> buildRows(List<Student> students, List<Subject> subjects) {
+        int subCount = subjects.size();
         List<StudentRow> rows = new ArrayList<>();
 
         for (Student stu : students) {
@@ -356,35 +401,7 @@ public class ScoreManager {
             row.average = validCount > 0 ? total / validCount : 0;
             rows.add(row);
         }
-
-        //按总分降序排列
-        rows.sort((a, b) -> Double.compare(b.total, a.total));
-
-        for (int i = 0; i < rows.size(); i++) {
-            StudentRow row = rows.get(i);
-            if (i == 0 || Math.abs(row.total - rows.get(i - 1).total) > SCORE_EPSILON) {
-                row.rank = i + 1;
-            } else {
-                row.rank = rows.get( i - 1).rank;
-            }
-        }
-
-        ToolUtil.printTable("全体学生成绩表", headers, widths, rows, (row, idx) -> {
-   
-            String[] cells = new String[totalCols];
-             
-            cells[0] = String.valueOf(row.rank);
-            cells[1] = row.studentId;
-            cells[2] = row.name;
-
-            for (int i = 0; i < subCount; i++) {
-                cells[3 + i] = (row.scores[i] < 0) ? "-" : String.format("%.1f", row.scores[i]);
-            }
-            cells[3 + subCount] = String.format("%.1f", row.total);
-            cells[4 + subCount] = String.format("%.2f", row.average);
-
-            return cells;
-        }); 
+        return rows;
     }
     
     //初始化成绩（测试）
