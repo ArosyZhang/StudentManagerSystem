@@ -58,7 +58,7 @@ public class DataStore {
         saveFile(SCORE_FILE, "成绩", flattenScores(), line -> line);
     }
 
-    //把一个列表逐行写入文件；toLine 负责把一条数据变成一行文本\
+    //把一个列表逐行写入文件；toLine 负责把一条数据变成一行文本
     private <T> void saveFile(String filePath, String label, List<T> items, Function<T, String> toLine) {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8"))) {
             for (T item : items) {
