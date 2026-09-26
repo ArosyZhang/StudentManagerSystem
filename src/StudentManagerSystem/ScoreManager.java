@@ -6,21 +6,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * 成绩管理者：全项目唯一持有分数数据的地方，提供成绩的录入、查询、统计与删除。
+ *
+ * 由主菜单 {@link StudentManagerSystem} 调用 {@link #showAllScoresTable}，来展示学生成绩总表（排名）、 {@link #scoreMenu}，进入成绩管理子菜单；
+ * 由主菜单 {@link StudentManagerSystem} 调用 {@link #removeScoreByStudent} 和 {@link #removeScoreBySubject}，
+ * 把这两个方法注册为删除回调：删除学生/科目时连带清除其全部成绩。
+ *
+ * <p>边界：不负责成绩文件的写入和读取（由 {@link DataStore} 负责），
+ * 不负责学生和科目两个实体的相关操作，由 {@link StudentManager} 和 {@link SubjectManager} 负责。
+ *
+ * @author ArosyZhang
+ * @since 1.0
+ */
 public class ScoreManager {
-    //分数容差
+    /**
+     * 分数容差：两个分数（或两个总分）相差不超过它时，视为相等/并列。
+     * 用它代替浮点数的 {@code ==} 比较，避免本该并列的两条记录因浮点误差拿到不同的名次。
+     */
     private static final double SCORE_EPSILON = 1e-6;
+    /** 分数范围最小值常量 */
     private static final double SCORE_MIN = 0.0;
+    /** 分数范围最大值常量 */
     private static final double SCORE_MAX = 100.0;
 
-    private final Map<String, Map<String,Double>> scoreMap = new HashMap<>();
+    /**
+     * 嵌套映射（其索引格式为：外层：学号；内层：科目编号 + 成绩）。
+     * 本类以学生为主视角（使用频率高）：操作某个学生的全部成绩复杂度为 O(1)；操作某个科目的全部成绩复杂度为 O(n)。
+     * 数据结构不是"装数据的容器"，是"查询方式的索引"。选哪层做索引，等于决定哪个方向的查询免费、哪个方向付代价。
+     */
+    private final Map<String, Map<String, Double>> scoreMap = new HashMap<>();
 
     private final StudentManager studentManager;
     private final SubjectManager subjectManager;
 
-    public ScoreManager(StudentManager studentManager,SubjectManager subjectManager) {
+    /**
+     * 构造注入：让本类拿到与主菜单、{@link DataStore} 完全相同的那两个 Manager 实例，
+     * 而不是自己 new 一份（自己 new 的话拿到的是另一套空数据，什么都查不到）。
+     *
+     * @param studentManager    学生管理器，用于把学号翻译成姓名、并列出学生供选择
+     * @param subjectManager    科目管理器，用于把科目编号翻译成名称、并列出科目供选择
+     */
+    public ScoreManager(StudentManager studentManager, SubjectManager subjectManager) {
         this.studentManager = studentManager;
         this.subjectManager = subjectManager;
     }
+
+    /**
+     * 负责成绩录入和成绩查询
+     *
+     * @param scanner   读取用户输入
+     */
     public void scoreMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n===== 成绩管理菜单 =====");
@@ -40,7 +76,13 @@ public class ScoreManager {
     }
 
     //--- 成绩录入 ---
-    public void enterScoreMenu(Scanner scanner){
+    /**
+     * 两种录入方式1.科目录入：科目列表选择科目->学生列表选择学生->输入合法成绩->录入/更新成功。
+     * 2.学生录入：学生列表选择学生->科目列表选择科目->输入合法成绩->录入/更新成功。
+     *
+     * @param scanner   读取用户输入
+     */
+    public void enterScoreMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n=== 成绩录入 ===");
             System.out.println("1.按科目录入");
@@ -49,7 +91,7 @@ public class ScoreManager {
             System.out.println("-------------------");
             int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 2);
 
-            switch (choiceNumber){
+            switch (choiceNumber) {
                 case 1 -> enterBySubject(scanner);
                 case 2 -> enterByStudent(scanner);
                 case 0 -> { return; }
@@ -76,7 +118,7 @@ public class ScoreManager {
                 break;
             }
             double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
-            boolean saved = addOrUpdateScore(scanner,student.getId(), subject.getId(), score);
+            boolean saved = addOrUpdateScore(scanner, student.getId(), subject.getId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
             }
@@ -100,7 +142,7 @@ public class ScoreManager {
                 break;
             }
             double score = ToolUtil.readDouble(scanner, "请输入分数(0-100): ", SCORE_MIN, SCORE_MAX);
-            boolean saved = addOrUpdateScore(scanner,student.getId(), subject.getId(), score);
+            boolean saved = addOrUpdateScore(scanner, student.getId(), subject.getId(), score);
             if (!saved) {
                 System.out.println("本次录入已放弃");
             }
@@ -108,17 +150,26 @@ public class ScoreManager {
     }
 
     //添加和更新成绩（已存在则覆盖）
-    public boolean addOrUpdateScore(Scanner scanner, String studentId, String subjectId,double score) {
+    /**
+     * 获取该学生的成绩Map，不存在则创建；录入时有成绩覆盖提示。
+     *
+     * @param scanner   读取用户输入
+     * @param studentId 学号
+     * @param subjectId 科目编号
+     * @param score     分数，取值在 [{@value #SCORE_MIN}, {@value #SCORE_MAX}] 之间（含边界）
+     * @return          true 表示成绩已写入（新增或覆盖成功）；false 表示用户在覆盖确认时放弃，成绩未变
+     */
+    public boolean addOrUpdateScore(Scanner scanner, String studentId, String subjectId, double score) {
         //入口归一化处理
         String normStudentId = ToolUtil.normalizeId(studentId);
         String normSubjectId = ToolUtil.normalizeId(subjectId);
 
         //获取该学生的成绩Map，不存在则创建
-        Map<String,Double> studentScores = scoreMap.get(normStudentId);
+        Map<String, Double> studentScores = scoreMap.get(normStudentId);
         if (studentScores == null) {
             //  该学生从未录入过成绩，新建一个内层 Map
             studentScores = new HashMap<>();
-            scoreMap.put(normStudentId,studentScores);
+            scoreMap.put(normStudentId, studentScores);
         }
         //判断是否已有该科目的成绩
         if (studentScores.containsKey(normSubjectId)) {
@@ -155,7 +206,7 @@ public class ScoreManager {
             System.out.println("0. 返回上级菜单");
             System.out.println("-------------------");
             int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 2);
-            switch (choiceNumber){
+            switch (choiceNumber) {
                 case 1 -> queryStudentScores(scanner);
                 case 2 -> subjectRanking(scanner);
                 case 0 -> { return; }
@@ -270,7 +321,7 @@ public class ScoreManager {
     //删除某个科目的所有成绩（遍历所有学生，移除该科目）
     public void removeScoreBySubject(String subjectId) {
         String normalizedSubjectId = ToolUtil.normalizeId(subjectId);
-        for (Map<String,Double> scores : scoreMap.values()) {
+        for (Map<String, Double> scores : scoreMap.values()) {
             scores.remove(normalizedSubjectId);
         }
     }
@@ -290,8 +341,14 @@ public class ScoreManager {
         List<Subject> subjects = subjectManager.snapshotSubjects();
         List<Student> students = studentManager.snapshotStudents();
 
-        if (students.isEmpty()) { System.out.println("暂无学生数据"); return;}
-        if (subjects.isEmpty()) { System.out.println("暂无科目数据"); return;}
+        if (students.isEmpty()) {
+            System.out.println("暂无学生数据");
+            return;
+        }
+        if (subjects.isEmpty()) {
+            System.out.println("暂无科目数据");
+            return;
+        }
 
         List<StudentRow> rows = buildRows(students, subjects);
         assignRanks(rows);
