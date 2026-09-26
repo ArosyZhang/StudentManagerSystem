@@ -19,14 +19,14 @@ public class Student implements Entity {
      * <p><b>这里不做任何校验</b>：传 null 或负数年龄都会照单全收。
      * 参数的合法性由调用方 {@link StudentManager} 负责（它检查空值并限制年龄区间）。
      */
-    public Student(String id, String name, int age){
+    public Student(String id, String name, int age) {
         this.stuId = id;
         this.stuName = name;
         this.age = age;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "学号: " + stuId + " 姓名: " + stuName + " 年龄: " + age;
     }
 

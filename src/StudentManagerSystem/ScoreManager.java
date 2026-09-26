@@ -188,7 +188,7 @@ public class ScoreManager {
             }
         }
         //"科目编号"、"覆盖旧分数"
-        studentScores.put(normSubjectId,score);
+        studentScores.put(normSubjectId, score);
 
         //提示添加成功
         String stuName = studentManager.getNameById(normStudentId);
@@ -235,7 +235,7 @@ public class ScoreManager {
         List<Subject> subjects = subjectManager.snapshotSubjects();
         if (subjects.isEmpty()) {
             System.out.println("暂无科目数据");
-            return ;
+            return;
         }
         //输出该学生的成绩表
         System.out.println("\n===== " + student.getName() + " 的成绩单 =====");
@@ -261,7 +261,7 @@ public class ScoreManager {
             System.out.println("该学生暂无任何成绩");
         } else {
             System.out.printf("总分： %.1f%n", total);
-            System.out.printf("平均分：%.2f (按 %d 门有成绩的科目计算) %n", total / validCount,validCount);
+            System.out.printf("平均分：%.2f (按 %d 门有成绩的科目计算) %n", total / validCount, validCount);
         }
     }
 
@@ -278,7 +278,7 @@ public class ScoreManager {
         List<Map.Entry<String, Double>> ranking = new ArrayList<>();
 
         String normSubjectId = ToolUtil.normalizeId(subjectId);
-        for (Map.Entry<String , Map<String, Double>> outer : scoreMap.entrySet()) {
+        for (Map.Entry<String, Map<String, Double>> outer : scoreMap.entrySet()) {
             String studentId = outer.getKey();
             Map<String, Double> studentScores = outer.getValue();
             if (studentScores.containsKey(normSubjectId)) {
@@ -309,7 +309,7 @@ public class ScoreManager {
                 lastScore = score;
             }
             String name = ToolUtil.truncate(studentManager.getNameById(studentId), 12);
-            System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);
+            System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId, score);
         }
     }
 

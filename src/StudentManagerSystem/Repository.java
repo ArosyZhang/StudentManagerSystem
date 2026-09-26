@@ -104,7 +104,7 @@ public class Repository<T extends Entity> {
         }
         int newNum = maxNum + 1;
         if (newNum > (int) Math.pow(10, idDigits) - 1) {
-            throw new IllegalStateException(label + "ID已达到最大值,无法生成新的ID");
+            throw new IllegalStateException(label + "ID已达到最大值，无法生成新的ID");
         }
         return idPrefix + String.format("%0" + idDigits + "d", newNum);
     }

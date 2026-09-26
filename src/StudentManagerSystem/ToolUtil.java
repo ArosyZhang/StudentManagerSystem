@@ -138,7 +138,7 @@ public class ToolUtil {
      * @param max     允许的最大值
      * @return        用户输入的合法浮点数
      */
-    public static double readDouble(Scanner scanner, String prompt, double min ,double max) {
+    public static double readDouble(Scanner scanner, String prompt, double min, double max) {
         double result;
         while (true) {
             System.out.print(prompt);
@@ -212,7 +212,7 @@ public class ToolUtil {
      * @param <T>       表格每一行代表的那个对象的类型(本项目是 {@link Student}、{@link Subject}，以及 {@link ScoreManager}内部给成绩表用的 StudentRow)
      * @param title     表格标题
      * @param headers   列名
-     * @param widths    每列的显示宽度,中文按2算，长度必须与headers一致
+     * @param widths    每列的显示宽度，中文按2算，长度必须与headers一致
      * @param list      数据行
      * @param mapper    如何从一行数据取出每列的文本
      */

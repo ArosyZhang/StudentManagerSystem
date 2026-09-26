@@ -32,7 +32,7 @@ public class Subject implements Entity {
         return subId;
     }
 
-    public String getName(){
+    public String getName() {
         return subName;
     }
 }

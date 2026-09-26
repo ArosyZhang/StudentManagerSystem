@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  * <p>边界：不负责读写文件（那是 {@link DataStore} 的事），不负责成绩（那是 {@link ScoreManager} 的事），
  * 也不决定"什么时候保存"（那是组合根 {@link StudentManagerSystem} 的事）。
  *
- * 本类不能直接持有 ScoreManager —— 一旦两个 Manager 互相持有就成了循环依赖，谁的构造函数都写不出来"
+ * 本类不能直接持有 ScoreManager —— 一旦两个 Manager 互相持有就成了循环依赖，谁的构造函数都写不出来
  * 删除一个科目时由 {@link Consumer}回调返回科目编号，通知 {@link StudentManagerSystem} 删除该科目编号下对应的所有成绩
  *
  * @author ArosyZhang
@@ -24,8 +24,8 @@ public class SubjectManager {
      * 显示科目管理菜单：添加、删除和显示全部科目；0返回上级菜单
      *
      * @param scanner           读取用户输入
-     * @param onSubjectDeleted  科目删除后的回调参数，被删科目的唯一编号，本类不能直接操作 {@link ScoreManager} ，
-     * 由组合根 {@link StudentManagerSystem} 接上"同时删除该科目下全部成绩"
+     * @param onSubjectDeleted  科目删除后的回调参数，被删科目的唯一编号，本类不能直接操作 {@link ScoreManager}，
+     *                          由组合根 {@link StudentManagerSystem} 接上"同时删除该科目下全部成绩"
      */
     public void showSubjectMenu(Scanner scanner, Consumer<String> onSubjectDeleted) {
         while (true) {
@@ -76,7 +76,7 @@ public class SubjectManager {
     }
 
     /**
-     * 删除一门科目：调用{@link chooseSubject} 来选择一门科目，二次确认删除
+     * 删除一门科目：调用 {@link chooseSubject} 来选择一门科目，二次确认删除
      *
      * @param scanner   读取用户输入
      * @return          被删除的科目；用户输入 0、没选到科目、或确认时没输入 Y 时返回 <b>null</b>。
@@ -104,12 +104,12 @@ public class SubjectManager {
     /**
      * 打印全部科目的表格（科目编号 + 科目名称）。列表为空时只提示一句，不打印空表头。
      */
-    public void listSubject(){
+    public void listSubject() {
         List<Subject> subjects = subjectRepo.snapshot();
 
-        if (subjects.isEmpty()){
+        if (subjects.isEmpty()) {
             System.out.println("科目列表为空");
-            return ;
+            return;
         }
         String[] headers = {"科目编号", "科目名称"};
         int[] widths = {10, 14};

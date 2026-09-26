@@ -33,7 +33,7 @@ public class StudentManager {
      * @param onStudentDeleted  学生被成功删除后的回调，参数是被删学生的学号。本类不认识 {@link ScoreManager}，靠这个回调把"该生没了"这件事传出去，
      *                          由组合根 {@link StudentManagerSystem} 接上"同时删除其全部成绩"
      */
-    public void showStudentMenu(Scanner scanner, Consumer<String> onStudentDeleted){
+    public void showStudentMenu(Scanner scanner, Consumer<String> onStudentDeleted) {
         while (true) {
             System.out.println("\n===== 学生管理菜单 =====");
             System.out.println("1. 添加学生");
@@ -179,7 +179,7 @@ public class StudentManager {
      * 从文件加载一条学生记录。本方法<b>不检查文件是否存在</b>，那是 {@link DataStore} 的职责。
      *
      * <p>返回类型为什么是 {@link String} 而不是 {@code boolean}？因为失败原因不止一种，
-     * 调用方需要把具体原因拼进"第 N 行 xxx,已跳过：..."的提示里；只给 true/false 的话，用户看到提示也不知道到底该改哪。
+     * 调用方需要把具体原因拼进"第 N 行 xxx，已跳过：..."的提示里；只给 true/false 的话，用户看到提示也不知道到底该改哪。
      *
      * @param stuId         学号，先经 {@link ToolUtil#normalizeId} 归一化（null 变 ""、去首尾空格、转大写）
      * @param stuName       姓名，不做归一化，只判空

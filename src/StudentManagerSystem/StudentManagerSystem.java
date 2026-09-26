@@ -40,7 +40,7 @@ public class StudentManagerSystem {
                 System.out.println("0.退出");
                 System.out.println("----------------------------");
                 int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 4);
-                switch(choiceNumber){
+                switch(choiceNumber) {
                     case 1 -> scoreManager.showAllScoresTable();
                     case 2 -> {
                         studentMenu();
