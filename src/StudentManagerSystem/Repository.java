@@ -22,21 +22,42 @@ public class Repository<T extends Entity> {
     private final String label;
     private final List<T> items = new ArrayList<>();
 
+    /**
+     * 构造方法，用于创建仓库实例
+     *
+     * @param idPrefix  编号前缀
+     * @param idDigits  编号数字部分的位数
+     * @param label     仓库标签/名称
+     */
     public Repository(String idPrefix, int idDigits, String label) {
         this.idPrefix = idPrefix;
         this.idDigits = idDigits;
         this.label = label;
     }
 
+    /**
+     * 向仓库集合中添加元素
+     *
+     * @param item  待添加的元素对象
+     */
     public void add(T item) {
         items.add(item);
     }
 
+    /**
+     * 从仓库集合中移除指定元素
+     *
+     * @param item  待移除的元素对象
+     */
     public void remove(T item) {
         items.remove(item);
     }
 
-    /** 返回所有实体的快照。@return 不可变列表，试图修改会抛 UnsupportedOperationException */
+    /**
+     * 返回所有实体的快照。
+     *
+     * @return  不可变列表，试图修改会抛 {@code UnsupportedOperationException}
+     */
     public List<T> snapshot() {
         return List.copyOf(items);
     }

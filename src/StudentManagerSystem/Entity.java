@@ -14,9 +14,19 @@ package StudentManagerSystem;
  */
 public interface Entity {
 
-    /** 返回实体的唯一编号（学号/科目编号）。约定不会返回 null，也不带首尾空格。 */
+    /**
+     * 返回实体的唯一编号（学号/科目编号）
+     * <p>约定：不返回 {@code null}，也不带首尾空格。
+     *
+     * @return  实体的唯一编号
+     */
     String getId();
 
-    /** 返回实体的显示名称（姓名 / 科目名称）。约定不会返回 null。 */
+    /**
+     * 返回实体的显示名称（姓名 / 科目名称）
+     * <p>约定：不返回 {@code null}，也不带首尾空格。
+     *
+     * @return  实体的显示名称
+     */
     String getName();
 }

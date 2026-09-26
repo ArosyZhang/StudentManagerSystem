@@ -51,10 +51,10 @@ public class ToolUtil {
     }
 
     /**
-     * 打印标题横幅，宽度与给定参考字符串一致，两侧则用=填充
+     * 打印标题横幅，使用等号填充左右两侧实现居中效果
      *
-     * @param title         标题名
-     * @param reference
+     * @param title         需要居中展示的标题文本
+     * @param reference     参考文本，以此决定横幅总宽度
      */
     public static void printBanner(String title, String reference) {
         int totalWidth = displayWidth(reference);
@@ -65,9 +65,10 @@ public class ToolUtil {
     }
 
     /**
-     * 打印指定宽度的分隔线
+     * 打印分隔线，分隔线长度由参考文本的显示宽度决定
+     *
      * @param ch            组成分割线的字符
-     * @param reference
+     * @param reference     参考文本，用于确定分隔线总宽度
      */
     public static void printDivider(char ch, String reference) {
         System.out.println(String.valueOf(ch).repeat(displayWidth(reference)));
@@ -176,6 +177,12 @@ public class ToolUtil {
      */
     public static class InputCloseException extends RuntimeException {
         private static final long serialVersionUID = 1L;
+
+        /**
+         * 构造方法，创建输入关闭异常实例
+         *
+         * @param message   异常提示信息
+         */
         public InputCloseException(String message) {
             super(message);
         }
@@ -198,11 +205,19 @@ public class ToolUtil {
     //===========通用表格渲染===========
 
     /**
-     * 行映射器接口，用于将对象映射为表格行
+     * 带行索引的行映射接口，用于将对象映射为表格行。
+     *
      * @param <T> 表格每一行代表的那个对象的类型（本项目是 {@link Student}、{@link Subject}，以及 {@link ScoreManager} 内部给成绩表用的 StudentRow）
      */
     @FunctionalInterface
     public interface RowMapperWithIndex<T> {
+        /**
+         * 把列表中的一项映射成表格的一行。
+         *
+         * @param item  待映射的对象
+         * @param index 该对象在列表中的下标（从 0 开始）
+         * @return      各列文本组成的数组，顺序须与表头一致
+         */
         String[] map(T item, int index);
     }
 

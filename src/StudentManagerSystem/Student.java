@@ -14,10 +14,13 @@ public class Student implements Entity {
     private final int age;
 
     /**
-     *构造一个学生。
-     *
+     * 构造方法，创建学生对象。
      * <p><b>这里不做任何校验</b>：传 null 或负数年龄都会照单全收。
      * 参数的合法性由调用方 {@link StudentManager} 负责（它检查空值并限制年龄区间）。
+     *
+     * @param id    学生编号
+     * @param name  学生姓名
+     * @param age   学生年龄
      */
     public Student(String id, String name, int age) {
         this.stuId = id;
@@ -39,9 +42,10 @@ public class Student implements Entity {
     }
 
     /**
-     * 返回学生年龄
-     *
+     * 获取学生年龄
      * <p>年龄不是 {@link Entity} 约定的一部分（科目就没有年龄），所以只能在这里说明。
+     *
+     * @return  返回学生年龄
      */
     public int getStuAge() {
         return age;

@@ -13,10 +13,11 @@ public class Subject implements Entity {
     private final String subName;
 
     /**
-     *构造一个科目。
+     * 构造方法，创建科目对象。
+     * <p><b>这里不做任何校验</b>，参数的合法性由调用方 {@link SubjectManager} 负责。
      *
-     * <p><b>这里不做任何校验</b>
-     * 参数的合法性由调用方 {@link SubjectManager} 负责。
+     * @param subId     科目编号
+     * @param subName   科目名称
      */
     public Subject(String subId, String subName) {
         this.subId = subId;
