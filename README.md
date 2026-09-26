@@ -92,25 +92,25 @@ java -cp bin StudentManagerSystem.StudentManagerSystem
 | 脚本 | 做什么 | 要不要装 JDK |
 |---|---|---|
 | `run.bat` | 编译后**直接运行** | 要 |
-| `build.bat` | 编译后打包成 `StudentManagerSystem-1.0.0.jar` | 要 |
+| `build.bat` | 编译后打包成 `StudentManagerSystem-1.0.2.jar` | 要 |
 | `package-green.bat` | 打包出免安装的绿色版 zip（见下一节） | 要（只有做包的人要） |
 
 打完包后运行 jar：
 
 ```bash
-java -jar StudentManagerSystem-1.0.0.jar
+java -jar StudentManagerSystem-1.0.2.jar
 ```
 
 > `run.bat` 的提示信息是英文的，这是故意的：Windows 批处理里写中文就得切换控制台代码页，而切换代码页会让后面的 Java 程序读不到键盘输入。程序自己的菜单仍然是中文。
 
 ## 下载即用（绿色版）
 
-不想在自己电脑上装 Java？到 [Releases](https://github.com/ArosyZhang/StudentManagerSystem/releases) 下载 `StudentManagerSystem-1.0.0-win.zip`，解压后双击 `启动.bat` 就能跑 —— 包里自带一个约 27 MB 的精简 JRE（用 `jlink` 只保留程序真正用到的 `java.base` 模块），**不需要另外安装 Java**。
+不想在自己电脑上装 Java？到 [Releases](https://github.com/ArosyZhang/StudentManagerSystem/releases) 下载 `StudentManagerSystem-1.0.2-win.zip`，解压后双击 `启动.bat` 就能跑 —— 包里自带一个约 27 MB 的精简 JRE（用 `jlink` 只保留程序真正用到的 `java.base` 模块），**不需要另外安装 Java**。
 
 ```
-StudentManagerSystem-1.0.0-win/
+StudentManagerSystem-1.0.2-win/
 ├── 启动.bat                          ← 双击这个
-├── StudentManagerSystem-1.0.0.jar    ← 程序本体
+├── StudentManagerSystem-1.0.2.jar    ← 程序本体
 ├── jre/                              ← 精简 JRE（约 27 MB）
 ├── data/                             ← 数据文件
 └── 使用说明.txt

@@ -2,7 +2,7 @@
 chcp 65001 > nul
 cd /d "%~dp0"
 
-set "VERSION=1.0.0"
+set "VERSION=1.0.2"
 set "JAR=StudentManagerSystem-%VERSION%.jar"
 set "DIST=StudentManagerSystem-%VERSION%-win"
 

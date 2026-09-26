@@ -2,6 +2,12 @@
 
 本项目遵循[语义化版本](https://semver.org/lang/zh-CN/)，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.0.2] - 2026-09-27
+
+### 修复
+
+- `data/scores.txt` 写回时按学号、科目号排序，不再因为内部 `HashMap` 的遍历顺序而每次保存都变动行序
+
 ## [1.0.1] - 2026-09-27
 
 在 1.0.0 基础上补齐"下载即用"的发布形态。
@@ -12,13 +18,10 @@
 - **`package-green.bat`** 与 `packaging/`：一键打包免安装的绿色版压缩包 —— 用 `jlink` 生成只含 `java.base` 模块的精简 JRE（约 27 MB），连同 jar、演示数据和启动脚本一起打包
 - Release 页面提供 Windows 绿色版，解压后双击 `启动.bat` 即可运行，**使用者不需要安装 Java**
 
-### 修复
-
-- `data/scores.txt` 写回时按学号、科目号排序，不再因为内部 `HashMap` 的遍历顺序而每次保存都变动行序
-
 ### 文档
 
 - README 补充三种运行方式对照表与绿色版说明，目录树同步更新
+- README「已知限制」新增：`data/scores.txt` 保存后的行序不固定（内部用 `HashMap` 存成绩，每次退出顺序可能变化）
 
 ## [1.0.0] - 2026-09-27
 
@@ -58,5 +61,6 @@
 - 为全部 10 个类补齐中文 Javadoc（类头职责与边界、公开 API 的契约、反直觉行为与使用约束）
 - 重写 README，补充功能说明、运行效果、数据文件格式、项目结构与设计说明
 
+[1.0.2]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0.2
 [1.0.1]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0.0
