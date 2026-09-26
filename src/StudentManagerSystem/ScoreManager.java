@@ -198,6 +198,13 @@ public class ScoreManager {
     }
 
     //--- 成绩查询与统计 ---
+    /**
+     * 查询菜单：1.按学生查，预期输出该学生所有科目成绩；2.按科目查，预期输出该科目下所有有成绩的学生并且排名（含并列名次处理）。
+     *
+     * <p>边界：只负责不同方式的成绩查询；不修改任何数据；由成绩管理 {@link #scoreMenu} 菜单调用。
+     *
+     * @param scanner   读取用户输入
+     */
     public void queryMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n=== 成绩查询 ===");
@@ -265,7 +272,12 @@ public class ScoreManager {
         }
     }
 
-    //单科目成绩排名：输入科目编号或科目名，输出该科目所有学生的成绩降序排列
+    /**
+     * 通过科目选择列表收集所选科目下所有同学的成绩，降序排序后打印名次。
+     * 两个分数差距大于容差（{@value #SCORE_EPSILON}）算不同名次，否则并列。
+     *
+     * @param scanner   读取用户输入
+     */
     private void subjectRanking(Scanner scanner) {
         //选择科目
         Subject subject = subjectManager.chooseSubject(scanner);
@@ -297,14 +309,14 @@ public class ScoreManager {
         System.out.println("\n===== " + subject.getName() + " 成绩排名 =====");
         int rank = 0;
         int count = 0;
-        double lastScore = -1;
+        double lastScore = -1; //SCORE_MIN 边界值为0，分数可以为0。
 
         for (Map.Entry<String, Double> entry : ranking) {
             String studentId = entry.getKey();
             double score = entry.getValue();
             count++;
             double diff = Math.abs(score - lastScore);
-            if (diff > SCORE_EPSILON) { //使用容差判断是否相等
+            if (diff > SCORE_EPSILON) {
                 rank = count;
                 lastScore = score;
             }
@@ -313,12 +325,23 @@ public class ScoreManager {
         }
     }
 
-    //--- 数据清理（删除学生/科目时调用） ---
-    //删除某个学生的所有成绩
+    /**
+     * 学生数据清理：删除某个学生的全部成绩（O(1)）：外层 Map 的 key 就是学号，直接移除整个内层 Map。
+     * 在 {@link StudentManagerSystem} 中注册为删除回调，删除学生成功后由 {@link StudentManager} 触发。
+     *
+     * @param studentId      待清理的学号；不存在时静默无操作
+     */
     public void removeScoreByStudent(String studentId) {
         scoreMap.remove(ToolUtil.normalizeId(studentId));
     }
-    //删除某个科目的所有成绩（遍历所有学生，移除该科目）
+
+    /**
+     * 科目数据清理：删除某个科目的全部成绩（O(n)）：外层 Map 的 key 是学号，光凭科目编号定位不到，
+     * 只能遍历每个学生的成绩表逐个移除——这是"外层用学号做索引"付出的代价。
+     * 在 {@link StudentManagerSystem} 中注册为删除回调，删除科目成功后由 {@link SubjectManager} 触发。
+     *
+     * @param subjectId      待清理的科目编号；不存在时静默无操作
+     */
     public void removeScoreBySubject(String subjectId) {
         String normalizedSubjectId = ToolUtil.normalizeId(subjectId);
         for (Map<String, Double> scores : scoreMap.values()) {
@@ -326,16 +349,29 @@ public class ScoreManager {
         }
     }
 
-    //临时数据类
+    /**
+     * 学生临时数据类：服务于打印总成绩表时对学生数据的暂存；
+     * {@link scores}：按科目顺序存放分数，<b>没</b>成绩的用 -1 表示；
+     *
+     * 由 {@link buildRows} 写入各项参数，{@link renderRow} 读取并操作；
+     */
     private static class StudentRow {
         String studentId;
         String name;
-        double[] scores; //按科目顺序存放分数，没有用 -1 表示
+        double[] scores;
         double total;
         double average;
         int rank; //名次
     }
 
+    /**
+     * 打印总成绩表格：名次 + 学号 + 姓名 + 每个已有科目一列 + 总分 + 平均分。
+     * 由主菜单（{@link StudentManagerSystem}）直接调用。
+     * 学生或科目为空时表格连表头都凑不出来，因此先行提示并返回。
+     *
+     * <p>边界：本方法不做任何计算，只负责编排——取快照、校验非空，再依次调用
+     * {@link #buildRows}、{@link #assignRanks} 和 {@link ToolUtil#printTable}。
+     */
     public void showAllScoresTable() {
         //获取所有科目
         List<Subject> subjects = subjectManager.snapshotSubjects();
