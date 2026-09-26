@@ -83,9 +83,40 @@ javac -d bin -encoding UTF-8 src/StudentManagerSystem/*.java
 java -cp bin StudentManagerSystem.StudentManagerSystem
 ```
 
-**Windows 用户更简单的方式**：直接双击项目根目录下的 `build.bat`，它会自动编译并打包成 `StudentManagerSystem-1.0.jar`，之后双击这个 jar 就能运行。
-
 > 项目**不需要** Maven / Gradle，也没有任何第三方依赖。
+
+### 更省事：直接双击脚本
+
+项目根目录下的三个 `.bat` 是给 Windows 用户准备的：
+
+| 脚本 | 做什么 | 要不要装 JDK |
+|---|---|---|
+| `run.bat` | 编译后**直接运行** | 要 |
+| `build.bat` | 编译后打包成 `StudentManagerSystem-1.0.0.jar` | 要 |
+| `package-green.bat` | 打包出免安装的绿色版 zip（见下一节） | 要（只有做包的人要） |
+
+打完包后运行 jar：
+
+```bash
+java -jar StudentManagerSystem-1.0.0.jar
+```
+
+> `run.bat` 的提示信息是英文的，这是故意的：Windows 批处理里写中文就得切换控制台代码页，而切换代码页会让后面的 Java 程序读不到键盘输入。程序自己的菜单仍然是中文。
+
+## 下载即用（绿色版）
+
+不想在自己电脑上装 Java？到 [Releases](https://github.com/ArosyZhang/StudentManagerSystem/releases) 下载 `StudentManagerSystem-1.0.0-win.zip`，解压后双击 `启动.bat` 就能跑 —— 包里自带一个约 27 MB 的精简 JRE（用 `jlink` 只保留程序真正用到的 `java.base` 模块），**不需要另外安装 Java**。
+
+```
+StudentManagerSystem-1.0.0-win/
+├── 启动.bat                          ← 双击这个
+├── StudentManagerSystem-1.0.0.jar    ← 程序本体
+├── jre/                              ← 精简 JRE（约 27 MB）
+├── data/                             ← 数据文件
+└── 使用说明.txt
+```
+
+> 绿色版目前只提供 Windows 版。其他系统请按上面的「快速开始」自行编译。
 
 ## 数据文件
 
@@ -110,13 +141,17 @@ Student_Manager_System/
 ├── src/StudentManagerSystem/    ← 源码（10 个 .java）
 ├── data/                        ← 数据文件（仓库里自带一份演示数据）
 ├── test/                        ← 学习小实验 + 手工回归测试清单（不参与编译）
+├── packaging/                   ← 绿色版的模板文件（启动脚本、使用说明）
 ├── docs/                        ← javadoc 生成的 HTML（已 gitignore）
 ├── bin/                         ← 编译输出（已 gitignore）
-├── build.bat                    ← 一键编译 + 打包（Windows）
+├── run.bat                      ← 一键编译 + 运行（Windows）
+├── build.bat                    ← 一键编译 + 打包 jar（Windows）
+├── package-green.bat            ← 一键打包免安装绿色版（Windows）
 ├── manifest.txt                 ← jar 入口声明
 ├── LICENSE
 ├── CHANGELOG.md
 ├── README.md
+├── .gitattributes
 └── .gitignore
 ```
 
@@ -166,6 +201,7 @@ Student_Manager_System/
 - 学号 / 科目编号为固定前缀 + 3 位数字（`STU001`），超过 999 条后会溢出成 4 位
 - 控制台程序，仅在 Windows 上验证过
 - 无效数据行只会被跳过并原样写回（追加到文件末尾），不会自动纠正，也不会被删除
+- `data/scores.txt` 保存后的**行序不固定**（内部用 `HashMap` 存成绩），每次退出后顺序可能变化；数据本身不会丢失、不会重复
 
 ## 许可证
 

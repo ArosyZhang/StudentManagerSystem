@@ -1,0 +1,8 @@
+@echo off
+cd /d "%~dp0"
+
+rem ?????? JRE ???????????? Java
+for %%f in ("StudentManagerSystem-*.jar") do set "JAR=%%f"
+"%~dp0jre\bin\java.exe" -jar "%JAR%"
+
+pause

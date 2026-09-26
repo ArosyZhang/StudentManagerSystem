@@ -2,6 +2,21 @@
 
 本项目遵循[语义化版本](https://semver.org/lang/zh-CN/)，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.0.1] - 2026-09-27
+
+在 1.0.0 基础上补齐"下载即用"的发布形态。
+
+### 新增
+
+- **`run.bat`**：双击即可编译并直接运行，省去手敲 `javac` / `java`
+- **`package-green.bat`** 与 `packaging/`：一键打包免安装的绿色版压缩包 —— 用 `jlink` 生成只含 `java.base` 模块的精简 JRE（约 27 MB），连同 jar、演示数据和启动脚本一起打包
+- Release 页面提供 Windows 绿色版，解压后双击 `启动.bat` 即可运行，**使用者不需要安装 Java**
+
+### 文档
+
+- README 补充三种运行方式对照表与绿色版说明，目录树同步更新
+- README「已知限制」新增：`data/scores.txt` 保存后的行序不固定（内部用 `HashMap` 存成绩，每次退出顺序可能变化）
+
 ## [1.0.0] - 2026-09-27
 
 首个发布版本：一个功能完整、注释齐备的纯 Java 控制台版学生成绩管理系统。
@@ -19,6 +34,7 @@
 ### 修复
 
 - **保存时原样写回无效数据行**，避免无法解析的脏数据在退出时被静默删除（唯一的真实数据丢失问题，读写两侧均已防护）
+- 修复 `build.bat` 下载后中文乱码：`cmd.exe` 处理不了 LF 行尾的批处理，新增 `.gitattributes` 把 Windows 批处理固定为 CRLF
 - 成绩输入支持小数，并修正了并列名次的判定逻辑
 - 修复学号 / 科目编号生成时的常量隐患与遗留问题
 - 数据加载前先清空集合，避免文件不存在时残留上一次运行的数据
@@ -39,4 +55,5 @@
 - 为全部 10 个类补齐中文 Javadoc（类头职责与边界、公开 API 的契约、反直觉行为与使用约束）
 - 重写 README，补充功能说明、运行效果、数据文件格式、项目结构与设计说明
 
+[1.0.1]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ArosyZhang/StudentManagerSystem/releases/tag/v1.0.0
