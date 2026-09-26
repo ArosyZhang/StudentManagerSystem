@@ -14,7 +14,7 @@ public class SubjectManager {
             System.out.println("2.删除科目");
             System.out.println("3.全部科目");
             System.out.println("0.返回主菜单");
-            System.out.println("----------------------------"); 
+            System.out.println("----------------------------");
             int subjectManagerChoice = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 3);
 
             switch (subjectManagerChoice) {
@@ -22,7 +22,7 @@ public class SubjectManager {
                 case 2 -> deleteSubject(scanner);
                 case 3 -> listSubject();
                 case 0 -> { return; }
-                default -> System.out.println("输入错误，请重新输入");                      
+                default -> System.out.println("输入错误，请重新输入");
             }
         }
     }
@@ -46,7 +46,7 @@ public class SubjectManager {
         }
         String subId = subjectRepo.generateId();
         subjectRepo.add(new Subject(subId, subName));
-        System.out.println("------------------------"); 
+        System.out.println("------------------------");
         System.out.println("添加《" + subName + "》 成功");
     }
 
@@ -106,14 +106,14 @@ public class SubjectManager {
     public String loadSubject(String subId, String subName) {
         subId = ToolUtil.normalizeId(subId);
         if (subId.isEmpty()) return "科目编号为空";
-        if (!subjectRepo.isId(subId)) return "科目编号格式错误"; 
+        if (!subjectRepo.isId(subId)) return "科目编号格式错误";
         if (subName.isEmpty()) return "科目名称为空";
         subjectRepo.add(new Subject(subId, subName));
         return null;
     }
     //只读快照
     public List<Subject> snapshotSubjects() {
-        return subjectRepo.snapshot(); 
+        return subjectRepo.snapshot();
     }
     //清空
     public void clearSubjects() {

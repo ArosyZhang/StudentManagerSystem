@@ -145,7 +145,7 @@ public class DataStore {
             }
             if (!skippedLines.isEmpty()) {
                 System.out.println(file.getName() + " 共跳过 " + skippedLines.size() + " 行无效数据，这些行会在保存时原样写回，请手工修复");
-            } 
+            }
         } catch (IOException e) {
             System.out.println("读取" + label + "数据失败：" + e.getMessage());
         }

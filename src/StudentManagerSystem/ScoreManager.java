@@ -16,7 +16,7 @@ public class ScoreManager {
 
     private final StudentManager studentManager;
     private final SubjectManager subjectManager;
-    
+
     public ScoreManager(StudentManager studentManager,SubjectManager subjectManager) {
         this.studentManager = studentManager;
         this.subjectManager = subjectManager;
@@ -27,16 +27,16 @@ public class ScoreManager {
             System.out.println("1.成绩录入");
             System.out.println("2.成绩查询与统计");
             System.out.println("0.返回主菜单");
-            System.out.println("----------------------------"); 
+            System.out.println("----------------------------");
             int choiceNumber = ToolUtil.readInt(scanner, "请选择对应的数字: ", 0, 2);
             switch (choiceNumber) {
-                 
+
                 case 1 -> enterScoreMenu(scanner);
                 case 2 -> queryMenu(scanner);
-                case 0 -> { return; }               
+                case 0 -> { return; }
                 default -> System.out.println("输入错误，请重新输入");
-            }          
-        }       
+            }
+        }
     }
 
     //--- 成绩录入 ---
@@ -54,13 +54,13 @@ public class ScoreManager {
                 case 2 -> enterByStudent(scanner);
                 case 0 -> { return; }
                 default -> System.out.println("输入有误，请重新输入");
-            }  
+            }
         }
     }
 
     //按科目录入：先选择一个科目，然后为该科目下的多个学生录入成绩
     private void enterBySubject(Scanner scanner) {
-        
+
         //1.显示所有科目，让用户选择科目
         Subject subject = subjectManager.chooseSubject(scanner);
         if (subject == null) {
@@ -134,7 +134,7 @@ public class ScoreManager {
             if (!confirm.equalsIgnoreCase("Y")) {
                 System.out.println("已取消，保留原成绩");
                 return false;
-            }         
+            }
         }
         //"科目编号"、"覆盖旧分数"
         studentScores.put(normSubjectId,score);
@@ -161,7 +161,7 @@ public class ScoreManager {
                 case 0 -> { return; }
                 default -> System.out.println("输入有误，请重新输入");
             }
-        }    
+        }
     }
 
     //查询某个学生的所有科目成绩
@@ -188,7 +188,7 @@ public class ScoreManager {
         }
         //输出该学生的成绩表
         System.out.println("\n===== " + student.getName() + " 的成绩单 =====");
-        
+
         double total = 0;
         int validCount = 0;
 
@@ -211,7 +211,7 @@ public class ScoreManager {
         } else {
             System.out.printf("总分： %.1f%n", total);
             System.out.printf("平均分：%.2f (按 %d 门 有成绩的科目计算) %n", total / validCount,validCount);
-        }  
+        }
     }
 
     //单科目成绩排名：输入科目编号或科目名，输出该科目所有学生的成绩降序排列
@@ -220,7 +220,7 @@ public class ScoreManager {
         Subject subject = subjectManager.chooseSubject(scanner);
         if (subject == null) {
             System.out.println("已取消查询");
-            return;  
+            return;
         }
         String subjectId = subject.getId();
         //收集该科目所有成绩
@@ -258,21 +258,21 @@ public class ScoreManager {
                 lastScore = score;
             }
             String name = ToolUtil.truncate(studentManager.getNameById(studentId), 12);
-            System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);    
+            System.out.printf("第 %d 名：%s (%s)  %.1f 分%n\n", rank, name, studentId ,score);
         }
     }
 
     //--- 数据清理（删除学生/科目时调用） ---
     //删除某个学生的所有成绩
-    public void removeScoreByStudent(String studentId) {   
-        scoreMap.remove(ToolUtil.normalizeId(studentId));    
+    public void removeScoreByStudent(String studentId) {
+        scoreMap.remove(ToolUtil.normalizeId(studentId));
     }
     //删除某个科目的所有成绩（遍历所有学生，移除该科目）
-    public void removeScoreBySubject(String subjectId) { 
+    public void removeScoreBySubject(String subjectId) {
         String normalizedSubjectId = ToolUtil.normalizeId(subjectId);
         for (Map<String,Double> scores : scoreMap.values()) {
             scores.remove(normalizedSubjectId);
-        }   
+        }
     }
 
     //临时数据类
@@ -281,8 +281,8 @@ public class ScoreManager {
         String name;
         double[] scores; //按科目顺序存放分数，没有用 -1 表示
         double total;
-        double average; 
-        int rank; //名次  
+        double average;
+        int rank; //名次
     }
 
     public void showAllScoresTable() {
@@ -314,7 +314,7 @@ public class ScoreManager {
         return headers;
     }
 
-    // 列宽，与 buildHeaders 一一对应 —— 想调宽度只改这里 
+    // 列宽，与 buildHeaders 一一对应 —— 想调宽度只改这里
     private int[] buildWidths(List<Subject> subjects) {
         int subCount = subjects.size();
         int[] widths = new int[3 + subCount + 2];
@@ -331,7 +331,7 @@ public class ScoreManager {
 
     private String[] renderRow(StudentRow row, int subCount) {
         String[] cells = new String[3 + subCount + 2];
-             
+
         cells[0] = String.valueOf(row.rank);
         cells[1] = row.studentId;
         cells[2] = row.name;
@@ -416,5 +416,5 @@ public class ScoreManager {
     //清空
     public void clearScores() {
         scoreMap.clear();
-    }  
+    }
 }

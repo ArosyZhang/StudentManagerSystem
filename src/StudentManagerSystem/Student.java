@@ -13,11 +13,11 @@ public class Student implements Entity {
 
     @Override
     public String toString(){
-        return "学号: " + stuId + " 姓名: " + stuName + " 年龄: " + age;    
+        return "学号: " + stuId + " 姓名: " + stuName + " 年龄: " + age;
     }
 
-    public String getId() { 
-        return stuId; 
+    public String getId() {
+        return stuId;
     }
     public String getName() {
         return stuName;

@@ -11,11 +11,11 @@ public class Subject implements Entity {
 
     @Override
     public String toString(){
-        return "科目编号: " + subId + " 科目名称: " + subName;    
+        return "科目编号: " + subId + " 科目名称: " + subName;
     }
 
-    public String getId() { 
-        return subId; 
+    public String getId() {
+        return subId;
     }
     public String getName(){
         return subName;

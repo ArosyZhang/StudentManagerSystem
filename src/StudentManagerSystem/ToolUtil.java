@@ -9,7 +9,7 @@ public class ToolUtil {
         if (s == null) return 0;
         int w = 0;
         for (char c : s.toCharArray()) {
-            w += isFullWidth(c) ? 2 : 1;       
+            w += isFullWidth(c) ? 2 : 1;
         }
         return w;
     }
@@ -37,7 +37,7 @@ public class ToolUtil {
             sb.append(' ');
             w++;
         }
-        return sb.toString();    
+        return sb.toString();
     }
 
     //打印标题横幅，宽度与给定参考字符串一致，两侧则用=填充
@@ -61,21 +61,21 @@ public class ToolUtil {
     public static String truncate(String s, int maxWidth) {
         if (s == null) return " ";
         if (displayWidth(s) <= maxWidth) return s;
-        
+
         StringBuilder sb = new StringBuilder();
         int w = 0;
         for (char c : s.toCharArray()) {
             int cw = isFullWidth(c) ? 2 : 1;
             if (w + cw > maxWidth - 4) break;
             sb.append(c);
-            w += cw;            
+            w += cw;
         }
         sb.append("...");
         return sb.toString();
     }
 
     //全局输入校验方法
-    /*  
+    /*
     * 从控制台读取一个整数，并限制在指定范围内。
     * 如果输入不是整数或超出范围，会提示并让用户重新输入。
     * @param scanner 全局共享的 Scanner 对象
@@ -96,7 +96,7 @@ public class ToolUtil {
                     System.out.println("输入超出范围，请输入 " + min + "~" + max + "之间的整数");
                     continue;
                 }
-                return result;  
+                return result;
             } catch (NumberFormatException e) {
                 System.out.println("输入无效，请输入一个整数");
             }
@@ -118,7 +118,7 @@ public class ToolUtil {
                     System.out.println("输入超出范围，请输入 " + min + "~" + max + "之间的数字");
                     continue;
                 }
-                return result;  
+                return result;
             } catch (NumberFormatException e) {
                 System.out.println("输入无效，请输入一个数字");
             }
@@ -132,6 +132,7 @@ public class ToolUtil {
 
     //输入流已结束（crtl+z 或管道输入耗尽）时抛出
     public static class InputCloseException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
         public InputCloseException(String message) {
             super(message);
         }
@@ -151,16 +152,16 @@ public class ToolUtil {
      * 行映射器接口，用于将对象映射为表格行
      * @param <T> 数据行的类型（studentManager、SubjectManager等）
      */
-    @FunctionalInterface 
+    @FunctionalInterface
     public interface RowMapperWithIndex<T> {
         String[] map(T item, int index);
     }
 
     /**
      * 渲染一张等宽表格：表头、分隔线、数据行公用一份列宽定义
-     * 
+     *
      * @param title     表格标题
-     * @param headers   列名    
+     * @param headers   列名
      * @param widths    每列的显示宽度,中文按2算，长度必须与headers一致
      * @param list      数据行
      * @param mapper    如何从一行数据取出每列的文本
@@ -182,7 +183,7 @@ public class ToolUtil {
 
         //3.横幅+表头+分隔线
         System.out.println();
-        printBanner(title, headerStr);  
+        printBanner(title, headerStr);
         System.out.println(headerStr);
         printDivider('-', headerStr);
 

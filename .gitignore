@@ -7,3 +7,7 @@ myjre/
 test/
 before.txt
 after.txt
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

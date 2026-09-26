@@ -19,11 +19,11 @@ public class StudentManager {
             System.out.println("2. 删除学生");
             System.out.println("3. 全部学生");
             System.out.println("0. 返回主菜单");
-            System.out.println("------------------------"); 
+            System.out.println("------------------------");
             int studentManagerChoice = ToolUtil.readInt(scanner, "请选择对应的数字：", 0 , 3);
-            
+
             switch (studentManagerChoice) {
-                case 1 -> addStudent(scanner);   
+                case 1 -> addStudent(scanner);
                 case 2 -> {
                     Student deleted = deleteStudent(scanner);
                     if (deleted != null) {
@@ -54,13 +54,13 @@ public class StudentManager {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             System.out.println("已有同名学生，后续请注意学号区别");
         }
-                    
+
         System.out.println("------------------------");
         int age = ToolUtil.readInt(scanner, "输入学生年龄: ", AGE_MIN, AGE_MAX);
 
         String stuId = studentRepo.generateId();
         studentRepo.add(new Student(stuId, stuName, age));
-        System.out.println("------------------------"); 
+        System.out.println("------------------------");
         System.out.println("成功添加 " + stuName + " 同学 年龄：" + age);
         System.out.println("唯一学号为：" + stuId);
     }
@@ -83,29 +83,29 @@ public class StudentManager {
         studentRepo.remove(student);
         System.out.println("已删除学生： " + student.getName());
         return student;
-    }  
+    }
 
     //打印全部学生
     public void listStudent() {
         List<Student> students = studentRepo.snapshot();
         if (students.isEmpty()) {
-            System.out.println("学生列表为空"); 
-            return;        
+            System.out.println("学生列表为空");
+            return;
         }
         String[] headers = {"学号", "姓名", "年龄"};
         int[] widths = {10, 14, 6};
 
         ToolUtil.printTable("学生列表", headers, widths, students, (s, i) -> new String[]{
             s.getId(),
-            s.getName(), 
+            s.getName(),
             String.valueOf(s.getStuAge())
-        });    
+        });
     }
 
     //让学生选择一个学生
     public Student chooseStudent(Scanner scanner) {
         return ToolUtil.chooseFromList(scanner, "学生", "学号", "姓名",
-            studentRepo.snapshot(), studentRepo::findById, this::findByName);    
+            studentRepo.snapshot(), studentRepo::findById, this::findByName);
     }
 
     //按姓名查找学生；存在同名时打印列表并返回null
@@ -133,7 +133,7 @@ public class StudentManager {
     public String loadStudent(String stuId, String stuName, String stuAgeText) {
         stuId = ToolUtil.normalizeId(stuId);
         if (stuId.isEmpty()) return "学号为空";
-        if (!studentRepo.isId(stuId)) return "学号格式错误"; 
+        if (!studentRepo.isId(stuId)) return "学号格式错误";
         if (stuName.isEmpty()) return "姓名为空";
         int stuAge;
         try {
@@ -145,7 +145,7 @@ public class StudentManager {
         studentRepo.add(new Student(stuId, stuName, stuAge));
         return null;
     }
-    
+
     public List<Student> snapshotStudents() {
         return studentRepo.snapshot();
     }
