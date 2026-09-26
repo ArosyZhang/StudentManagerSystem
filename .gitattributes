@@ -1,0 +1,11 @@
+# 文本文件统一按 LF 存入仓库，签出时由 Git 按平台自动转换
+* text=auto
+
+# Windows 批处理必须是 CRLF：
+# cmd.exe 读到 LF 行尾的 .bat 会出现字节错位，导致 chcp 不生效、中文输出乱码。
+# 这条规则同时保证 GitHub 打包 zip 时（在 Linux 上执行）也会转成 CRLF。
+*.bat text eol=crlf
+
+# 二进制文件不做任何转换
+*.jar   binary
+*.class binary
