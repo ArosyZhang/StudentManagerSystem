@@ -149,9 +149,8 @@ public class ScoreManager {
         }
     }
 
-    //添加和更新成绩（已存在则覆盖）
     /**
-     * 获取该学生的成绩Map，不存在则创建；录入时有成绩覆盖提示。
+     * 添加或更新一条成绩：已存在则覆盖（覆盖前会让用户确认）。
      *
      * @param scanner   读取用户输入
      * @param studentId 学号
@@ -199,7 +198,9 @@ public class ScoreManager {
 
     //--- 成绩查询与统计 ---
     /**
-     * 查询菜单：1.按学生查，预期输出该学生所有科目成绩；2.按科目查，预期输出该科目下所有有成绩的学生并且排名（含并列名次处理）。
+     * 查询菜单：
+     * 1.按学生查，预期输出该学生所有科目成绩；
+     * 2.按科目查，预期输出该科目下所有有成绩的学生并且排名（含并列名次处理）。
      *
      * <p>边界：只负责不同方式的成绩查询；不修改任何数据；由成绩管理 {@link #scoreMenu} 菜单调用。
      *
@@ -453,6 +454,19 @@ public class ScoreManager {
         }
     }
 
+    /**
+     * 组装成绩表的数据行：遍历「学生 × 科目」，把每个学生的各科成绩汇总成一条 {@link StudentRow}。
+     * 由 {@link showAllScoresTable} 调用；
+     *
+     * <p>约定：{@code scores[i]} 按 {@code subjects} 的顺序对应，
+     * <b>没成绩的科目填 -1</b>（{@link renderRow} 据此渲染成 "-"）。
+     * <p>平均分按<b>有成绩的科目数</b>计算，而不是全部科目数——缺考的科目不拉低平均分；
+     * 一门成绩都没有的学生平均分记 0（{@code validCount} 为 0 时不做除法）。
+     *
+     * @param students  全部学生的快照
+     * @param subjects  全部科目的快照，其顺序决定每行分数的列序
+     * @return          每个学生一条数据行，顺序与 {@code students} 一致
+     */
     private List<StudentRow> buildRows(List<Student> students, List<Subject> subjects) {
         int subCount = subjects.size();
         List<StudentRow> rows = new ArrayList<>();
@@ -485,7 +499,17 @@ public class ScoreManager {
         return rows;
     }
 
-    //从文件加载一条成绩数据。成功返回 null，失败返回原因
+    /**
+     * 从文件加载一条成绩记录。本方法不校验学号的格式，也不检查学生/科目是否真实存在
+     * —— 那是 {@link StudentManager} / {@link SubjectManager} 的职责。
+     *
+     * @param studentId 学号，先经 {@link ToolUtil#normalizeId} 归一化（null 变 ""、去首尾空格、转大写）
+     * @param subjectId 科目编号，先经 {@link ToolUtil#normalizeId} 归一化（null 变 ""、去首尾空格、转大写）
+     * @param scoreText 文件里读到的分数文本，由本方法解析成数字
+     * @return          <b>成功返回 null</b>；失败返回具体原因，取值只有这四种：
+     *                  {@code "学号为空"}、{@code "科目编号为空"}、{@code "分数不是数字"}、
+     *                  {@code "分数超出 " + SCORE_MIN + "~" + SCORE_MAX + " 范围"}
+     */
     public String loadScore(String studentId, String subjectId, String scoreText) {
         studentId = ToolUtil.normalizeId(studentId);
         subjectId = ToolUtil.normalizeId(subjectId);
@@ -502,11 +526,20 @@ public class ScoreManager {
         return null;
     }
 
-    //只读快照
+    /**
+     * 返回全部成绩的快照。
+     *
+     * @return  <b>外层不可变</b>的副本：不能增删学生，所以改动它不会影响本对象，也不会影响后续调用；
+     *          但内层 {@code Map<String, Double>} 仍是同一个引用——改动某个学生的成绩<b>会</b>穿透回本对象
+     *          （这是 {@link Map#copyOf} 的浅拷贝语义）
+     */
     public Map<String, Map<String, Double>> snapshotScores() {
         return Map.copyOf(scoreMap); //浅拷贝，外层不可变，内层仍可变
     }
-    //清空
+
+    /**
+     * 清空全部成绩。<b>只在加载数据前调用</b>：{@link DataStore#loadAll()} 每次都先清空再读，
+     * 否则文件不存在时会残留上一次运行的数据 */
     public void clearScores() {
         scoreMap.clear();
     }
