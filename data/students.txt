@@ -1,0 +1,5 @@
+STU001|张伟|20
+STU002|Alice|19
+STU003|李小明|21
+STU004|Bob|22
+STU005|Carol|20

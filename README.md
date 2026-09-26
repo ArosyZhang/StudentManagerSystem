@@ -1,6 +1,6 @@
-# 学生成绩管理系统 1.0
+# 学生成绩管理系统
 
-用纯 Java（无第三方依赖）写的控制台版学生成绩管理系统，我的第一个完整项目。
+用纯 Java 17 写的控制台版学生成绩管理系统：无第三方依赖、无构建工具，`javac` 一条命令就能编译运行。
 
 ## 功能
 
@@ -8,60 +8,165 @@
 
 | 编号 | 功能 | 说明 |
 |---|---|---|
-| 1 | 打印所有学生和成绩 | 表格输出，中文按 2 字符宽度对齐 |
-| 2 | 学生管理 | 增 / 删 / 改 / 查 |
-| 3 | 成绩管理 | 按学生、按科目录入与查询成绩 |
-| 4 | 科目管理 | 增 / 删 / 改 / 查 |
+| 1 | 打印所有学生和成绩 | 全校成绩总表，按总分降序、同名次并列，中文按 2 字符宽度对齐 |
+| 2 | 学生管理 | 增 / 删 / 查，删除学生时连带删除其全部成绩 |
+| 3 | 成绩管理 | 按学生或按科目录入、查询、删除成绩 |
+| 4 | 科目管理 | 增 / 删 / 查，删除科目时连带删除该科目的全部成绩 |
 | 0 | 退出 | 退出前自动保存数据 |
 
-## 目录结构
+## 运行效果
+
+一次真实运行（主菜单选 `1` 打印成绩总表）：
 
 ```
-Student_Manager_System\
-├─ src\StudentManagerSystem\   ← 源码
-├─ bin\                        ← 编译输出（已 gitignore）
-├─ build.bat                   ← 一键编译 + 打包
-├─ manifest.txt                ← jar 入口声明
-└─ README.md
+===== 学生成绩管理系统 =====
+
+1.打印所有学生和成绩
+2.学生管理
+3.成绩管理
+4.科目管理
+0.退出
+----------------------------
+请选择对应的数字: 1
+=================================== 全体学生成绩表 ===================================
+名次  学号      姓名          Java        数据结构    计算机网络  总分      平均分
+--------------------------------------------------------------------------------------
+1     STU001    张伟          95.0        88.5        92.0        275.5     91.83
+2     STU002    Alice         78.5        85.0        80.0        243.5     81.17
+3     STU003    李小明        60.0        72.5        -           132.5     66.25
+3     STU004    Bob           45.0        87.5        -           132.5     66.25
+5     STU005    Carol         -           -           -           0.0       0.00
 ```
 
-## 源码说明
+这张表里藏了几个细节：
 
-| 文件 | 行数 | 职责 |
-|---|---|---|
-| `StudentManagerSystem.java` | 66 | 程序入口 + 主菜单循环 |
-| `StudentManager.java` | 278 | 学生实体与管理（学号前缀 `STU`，补零到 6 位） |
-| `SubjectManager.java` | 248 | 科目实体与管理（科目号前缀 `SUB`，补零到 6 位） |
-| `ScoreManager.java` | 471 | 成绩表，`Map<学号, Map<科目号, Double>>` |
-| `DataStore.java` | 137 | 文件持久化：`loadAll()` / `saveAll()` |
-| `ToolUtil.java` | 124 | 输入校验、显示宽度计算 |
+- `-` 表示该科目没有成绩
+- **平均分只按有成绩的科目数计算**：`李小明` 只考了 2 门，平均分是 `132.5 ÷ 2 = 66.25`，不是 `132.5 ÷ 3`
+- **并列名次**：`李小明` 和 `Bob` 总分相同，都排第 3，下一个直接跳到第 5
+- **中英文混排按显示宽度对齐**：中文算 2 格、英文算 1 格，所以 `张伟` 和 `Alice` 能对齐；名字过长会截断成 `...`
 
-## 编译运行
+## 快速开始
 
-**一键编译打包**（Windows，双击 `build.bat`）：
+### 第一步：确认装了 JDK
 
-```bat
-javac -d bin -encoding UTF-8 src\StudentManagerSystem\*.java
-jar -cvfm 学生管理系统1.0.jar manifest.txt -C bin .
+打开命令行（Windows 按 `Win + R`，输入 `cmd`，回车），输入：
+
+```bash
+java -version
 ```
 
-**直接运行 class**：
+如果看到类似下面的输出，说明已经装好了：
 
 ```
+openjdk version "17.0.19" 2026-01-20
+OpenJDK Runtime Environment Temurin-17.0.19+10 (build 17.0.19+10)
+```
+
+如果提示 `'java' 不是内部或外部命令`，说明还没装。到 [Adoptium](https://adoptium.net/) 下载 **JDK 17 或更高版本** 安装即可（选 `Temurin`，一路下一步）。
+
+> 这个项目需要 **JDK 17 或更高**，JDK 8 会编译失败。
+
+### 第二步：编译
+
+在命令行里进入项目目录（把路径换成你实际存放的位置）：
+
+```bash
+cd /d D:\03-JAVA\Student_Manager_System
+javac -d bin -encoding UTF-8 src/StudentManagerSystem/*.java
+```
+
+编译没有输出就是成功了，`bin/` 目录下会生成一堆 `.class` 文件。
+
+### 第三步：运行
+
+```bash
 java -cp bin StudentManagerSystem.StudentManagerSystem
 ```
 
-> `build.bat` 是 **GBK 编码**（含中文提示），用 VS Code 打开若乱码请手动切编码。
-> `manifest.txt` 里声明了入口：`Main-Class: StudentManagerSystem.StudentManagerSystem`。
+**Windows 用户更简单的方式**：直接双击项目根目录下的 `build.bat`，它会自动编译并打包成 `StudentManagerSystem-1.0.jar`，之后双击这个 jar 就能运行。
 
-## 设计备忘
+> 项目**不需要** Maven / Gradle，也没有任何第三方依赖。
 
-- 全部用 `static` 成员和方法（写这个的时候还没学面向对象设计），所以没有实例化。
-- 数据在内存里用 `ArrayList` / `HashMap` 存，启动时 `DataStore.loadAll()` 读盘、退出前 `DataStore.saveAll()` 写盘。
-- `ToolUtil.dispalyWidth(String)` 用来算中文占 2 格、英文占 1 格，让控制台表格对齐；方法名拼错了（应为 `displayWidth`），留到后续版本改。
-- 学号 / 科目号由 `ID_PREFIX + 补零到 ID_FIX_LENGTH` 生成。
-- `StudentManagerSystem` 里保留了三个测试方法（`intDefaultSubject()`、`intDefaultStudent()`、`ScoreManager.initRandomScores()`），已注释掉，想造数据时取消注释即可。
+## 数据文件
 
-## 后续计划
+数据以纯文本形式存放在 `data/` 目录下，**可以直接用记事本编辑**：
 
-见笔记仓库 `05-复盘\学生系统后续版本规划.md`；打包精简 JRE 见 `03-流程与工具\jlink 生成精简 JRE.md`。
+| 文件 | 每行格式 | 样例 |
+|---|---|---|
+| `data/students.txt` | `学号\|姓名\|年龄` | `STU001\|张伟\|20` |
+| `data/subjects.txt` | `科目编号\|科目名称` | `SUB001\|Java` |
+| `data/scores.txt` | `学号\|科目编号\|分数` | `STU001\|SUB001\|95.0` |
+
+读取规则：
+
+- 程序启动时一次性读入内存；用户每次修改后自动写回文件（读取过程本身不会写盘）
+- 空行、字段不足、年龄或分数不是数字等无效行**会被跳过并打印提示**，但**不会被删除** —— 它们会在保存时**原样写回文件**（追加到文件末尾），等你手工修复
+- 文件不存在不会报错，程序按"空数据"启动
+
+## 项目结构
+
+```
+Student_Manager_System/
+├── src/StudentManagerSystem/    ← 源码（10 个 .java）
+├── data/                        ← 数据文件（仓库里自带一份演示数据）
+├── test/                        ← 学习小实验 + 手工回归测试清单（不参与编译）
+├── docs/                        ← javadoc 生成的 HTML（已 gitignore）
+├── bin/                         ← 编译输出（已 gitignore）
+├── build.bat                    ← 一键编译 + 打包（Windows）
+├── manifest.txt                 ← jar 入口声明
+├── LICENSE
+├── CHANGELOG.md
+├── README.md
+└── .gitignore
+```
+
+`test/` 里除了回归测试清单，还有几个十几行的 Java 小实验（`StaticDemo`、`ScopeDemo`、`ErasureDemo` 等），用来验证 `static`、作用域、泛型擦除这些概念 —— 其中两个是**故意编译不过的反例**。详见 [`test/README.md`](test/README.md)。
+
+### 源码说明
+
+| 文件 | 行数 | 职责 |
+|---|---|---|
+| `StudentManagerSystem.java` | 83 | 程序入口、主菜单循环、依赖装配 |
+| `Entity.java` | 32 | 实体接口：能报出自己的编号和名称 |
+| `Student.java` | 53 | 学生实体（学号 / 姓名 / 年龄） |
+| `Subject.java` | 39 | 科目实体（科目编号 / 科目名称） |
+| `Repository.java` | 132 | 泛型仓库：一套增删查同时管理学生和科目 |
+| `StudentManager.java` | 229 | 学生业务：校验、菜单、选择 |
+| `SubjectManager.java` | 192 | 科目业务：校验、菜单、选择 |
+| `ScoreManager.java` | 546 | 成绩业务：成绩存储、排名、成绩总表 |
+| `DataStore.java` | 189 | 文件持久化：读写三个数据文件 |
+| `ToolUtil.java` | 318 | 无状态工具：输入校验、显示宽度、表格渲染 |
+
+合计 1813 行，全部带中文 Javadoc。
+
+## 设计说明
+
+**分成五层，依赖方向单向向下：**
+
+```
+实体层    Student / Subject        —— 只装数据，不做校验、不碰文件
+仓库层    Repository<T>            —— 泛型容器，负责"按编号/名称查找"
+业务层    StudentManager           —— 学生相关业务
+          SubjectManager           —— 科目相关业务
+          ScoreManager             —— 成绩相关业务
+持久层    DataStore                —— 只管读写文件，不掺业务
+工具层    ToolUtil                 —— 无状态静态方法，谁都能用
+```
+
+几个关键决定：
+
+- **`Repository<T extends Entity>` 泛型仓库**：学生和科目的"增删查"逻辑完全一样，抽成一个泛型类，两种实体共用同一套代码。上界 `Entity` 保证仓库内部能调 `getId()` / `getName()`。
+- **业务类不持有 `DataStore`**：Manager 只管内存，什么时候存盘由组合根（`StudentManagerSystem`）决定。否则 `DataStore` 要持有三个 Manager、Manager 又要持有 `DataStore`，构造函数会循环依赖。
+- **删除用回调而不是直接引用**：删学生时要连带删成绩，但 `StudentManager` 不能直接持有 `ScoreManager`（会形成循环依赖），所以它收一个 `Consumer<String>` 回调，删完把学号"喊出去"，由组合根接上 `scoreManager::removeScoreByStudent`。
+- **`ToolUtil` 全是 `static`**：它的方法不需要记住任何状态（输入校验、算显示宽度、渲染表格），属于纯粹的工具函数，不需要实例。
+
+## 已知限制
+
+- 数据明文存放在 `data/` 下，没有加密，也没有并发保护（同一时间只应有一个程序实例在写）
+- 学号 / 科目编号为固定前缀 + 3 位数字（`STU001`），超过 999 条后会溢出成 4 位
+- 控制台程序，仅在 Windows 上验证过
+- 无效数据行只会被跳过并原样写回（追加到文件末尾），不会自动纠正，也不会被删除
+
+## 许可证
+
+[MIT](LICENSE) © 2026 ArosyZhang

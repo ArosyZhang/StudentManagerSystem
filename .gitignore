@@ -1,14 +1,21 @@
+# 编译输出
 bin/
-data/
-myjre/
-*.jar
 *.class
+
+# 打包产物
+*.jar
+
+# IDE
 .vscode/
-test/
-before.txt
-after.txt
 .idea/
 *.iml
+
+# 系统文件
 .DS_Store
 Thumbs.db
+
+# javadoc 输出
 docs/
+
+# 自行生成的精简 JRE
+myjre/
